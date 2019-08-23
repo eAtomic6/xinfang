@@ -1,5 +1,4 @@
   import {
-    getProjectTableList,
     getProjectTableRowInfo,
     getProjectStatistics,
     getTargetPlaceInfo,
@@ -8,7 +7,11 @@
     getAddAreaList,
     getAddBusinessList,
     addNewProject,
-    getMyCompany
+    getMyCompany,
+    getNewProjectList,
+    projectDetail,
+    getProjectState,
+    getHouseSpecial
   } from '@/api/index'
   import {
     RULE
@@ -17,15 +20,112 @@
     CITY
   } from '@/api/city'
   import axios from 'axios'
-  import {
-    isProjectPrice
-  } from "@/views/login/validate.js"
-  import ImageCompressor from 'image-compressor.js';
+import uploadImg from "@/components/uploadImg.vue"
+import ImageCompressor from 'image-compressor.js';
+  import deleteProject from './deleteProject.vue';
+  import photoDialog from './clickProjectList-info/photoDialog.vue';
+  import announceDialog from './clickProjectList-info/announceDialog.vue';
+  import projectDetails from './clickProjectList-info/projectDetails.vue';
+  import editCom from '@/components/edit-component/editCom.vue'
+  import getLocation from '@/components/location-component/getLocation.vue'
+  import projectSort from './projectSort.vue'
+  import releDynamic from './dynamic-info/releaDynamic.vue'
+  import {checkLong,checkLat} from '../../../vendor/methods.js'
   let activeItem = null
+  const NEWHOUSETYPE = {
+    area: '',
+    averagePrice: '',
+    bId: this.projectId,
+    huoseTypenName: '',
+    huxing: 1,
+    imgUrl: [],
+    kind: 2,
+    pictureType: null,
+    purpose: 1,
+    renovation: 1,
+    roomOrientation: 1,
+    roomStructure: 1,
+    sellingStatus: 1,
+    totalPrice: 0,
+    isNew: true
+  }
+  let checkAveragePrice = (rule, value, callback) => {
+    if (!value) {
+      return callback(new Error('请输入均价'));
+    }
+    setTimeout(() => {
+      if (!Number.isInteger(+value)) {
+        callback(new Error('请输入数字值'));
+      } else {
+        let reg = /^[1-9]\d{0,5}$/
+        if (reg.test(value)) {
+          callback();
+        } else {
+          callback(new Error('请输入1到6位数字'));
+
+        }
+      }
+    }, 1000);
+  };
+  let checkArea = (rule, value, callback) => {
+    if (!value) {
+      return callback(new Error('请输入面积'));
+    }
+    setTimeout(() => {
+      if (!Number.isInteger(+value)) {
+        callback(new Error('请输入数字值'));
+      } else {
+        let reg = /^[1-9]\d{0,4}$|^[1-9]\d{0,4}[.]\d{1,2}$|^[0][.]\d{1,2}/
+        if (reg.test(value)) {
+          callback();
+        } else {
+          callback(new Error('最多为五位正整数加两位小数'));
+        }
+      }
+    }, 1000);
+  };
   export default {
     mixins: [RULE, CITY],
+    components: {
+      photoDialog,
+      getLocation,
+      announceDialog,
+      projectDetails,
+      editCom,
+      deleteProject,
+      uploadImg,
+      projectSort,
+      releDynamic
+    },
     data() {
       return {
+        // ===================项目位置选择数据开始========================
+        getLocationDialog:false,
+        defaultLocation:"",
+        // getLocationDialog1:true,
+        // ===================项目位置选择数据结束========================
+        // ========================新的需求，项目列表动态功能开始=================================
+        releasedDynamicDlg:false,   // 动态发布弹框显示隐藏
+        releasedDynamicData:{},      // 点击编辑动态的数据
+        checkINT:"",                  // 用来判断是新增还是编辑动态的数据
+        // ========================新的需求，项目列表动态功能结束=================================
+        // ========================新的需求，新增强推项目排序开始=================================
+        isShowProjectSort1:false,   // 新增项目时强推项目排序显示隐藏
+        isShowProjectSort2:false,   // 编辑项目时强推项目排序显示隐藏
+        projectSortDiaolog:false,   // 强推项目列表弹框
+        projectSortData:[],         // 强推项目排序数据
+        lookSortForm:{},            // 传给排序列表的参数
+        projectIdProtect:"",        // 项目id存储
+        // ========================新的需求，新增强推项目排序结束=================================
+        // ========================= 新的需求，加入删除项目删除客户开始=================================
+        projectStateArr:[""],     // 项目条件搜索的项目状态数组
+        publicSystemArr:[""],     // 项目条件搜索项目发布系统数组
+        delProjectTitle:"",       // 删除项目弹框提示
+        deleteProject:false,      // 删除项目的弹框显示
+        // alertDelProjectMsg:"123",     // 删除项目时给的提示
+        deleteProjectId:"",
+        // ========================== 新的需求，加入删除项目删除客户结束==================================
+        lookEditorBox:false,
         // 表单中的数据
         formInline: {
           province: "",
@@ -39,6 +139,7 @@
         // 新增表单
         dialogAddFormVisible: false,
         addForm: {
+          projectAgent: "",
           projectType: "",
           projectState: "",
           name: "",
@@ -49,7 +150,7 @@
           buildingPrice: '',
           address: "",
           coordinate: "", // 地图坐标
-          statusSell: "", //  是否上架
+          statusSell: 2, //  是否上架
           buildingProperty: "", // 楼盘性质
           platform: [], // 同步系统
           customerType: "", // 项目有效类型
@@ -60,6 +161,8 @@
           proTimeDownPayment: "", //   下定保护期
           dialogImageUrl: "",
           projectPictureList: [],
+          decoration:"",
+          originalPosition:"",
           otherInfo: "",
         },
         dialogImageVisible: false, // 新增 图片框
@@ -68,12 +171,6 @@
         dialogImageTypeVisible: false, // 项目明细 图库里的 户型图
         dialogImageUrlType: "",
         keyWordCompany: [],
-        // table表格中的数据
-        tableData: [],
-        getRowKeys(row) {
-          return row.id;
-        },
-        expands: [],
         // 单击表格行 展开行内数据
         rowExpand: {},
         // 单击展开行 弹出 项目编辑模态框
@@ -81,7 +178,6 @@
         editDialogform: {},
         rowDblclickId: 0, // 项目明细的id
         // 项目编辑 模态框 校验规则
-
         //  项目统计 模态框
         statisticsVisible: false,
         statisticsTable: {
@@ -91,7 +187,7 @@
           state: "报备状态",
           info: "报备",
           valid: "有效报备",
-          unit: "位",
+          unit: "次",
           amount: "认筹金额"
         },
         statisticsCount: {},
@@ -105,6 +201,7 @@
           pageNum: 1
         },
         countSum: 0, //项目统计总条数
+        customerTotals:0,
         // 项目统计 表格
         statisticsTableData: {},
         amountTJShow: false,
@@ -143,6 +240,7 @@
         projectTypeData: [], // 所有的项目类型列表
         pageNum: 1, //分页器当前页
         pageSize: 5, //分页器每页的大小
+        pageSizesList: [5,10, 15, 20, 30, 50],
         count: 0, //  分页器数据的总条数
         keyWordForm: {}, // 关键词搜索的表单数据对象
         allProvinceData: [], // 关键词搜索所有省份的数据
@@ -157,7 +255,7 @@
         projectPictureList: [], // 新增项目时的图片数组对象
         addPlatform: [], // 同步系统中选中的值
         dictionary: {},
-        dictionaryList: [111, 117, 350, 359, 123, 126, 145, 208, 135, 149, 160, 129],
+        dictionaryList: [ 111,117, 350, 359, 123, 126, 145, 208, 135, 149, 160, 129, 437, 449, 454, 463, 468, 478],
         dataRange: [], //时间范围
         staffSearch: [],
         cityList: [], //所有城市信息
@@ -179,41 +277,123 @@
         uploadType: 1, //上传
         galleryActive: '',
         deleteRowId: 0,
-        editProject_title:"",
-        selectWeight: [false, false, false, false, false, false, false],//选择框选中时字体加粗
-        /** 户型图弹窗js start */
-        // houseTypeVisible:true,
-        /** 户型图弹窗js end */
+        editProject_title: "",
+        /** 户型图弹窗data start lwz*/
+        houseTypeVisible: false,
+        value: '',
+        sellType: [], //展示数据 售卖状态
+        face: [], //展示数据 房间朝向
+        decoration: [], //展示数据 装修
+        structure: [], //展示数据 房间结构
+        use: [], //展示数据 用途
+        homeType: [], //展示数据 户型
+        houseTypeForm: [],
+        houseTypeIndex: 0, //当前操作户型索引
+        projectId: 0, //项目id
+        houseTypeBoxTotal: [], //存储控制单个户型图显示隐藏布尔值
+        editBtnType: [], //存储编辑按钮状态,false编辑
+        houseTypeRules: {
+          huoseTypenName: [{
+            required: true,
+            message: '请输入户型名称',
+            trigger: ['keyup', 'blur']
+          }, {
+            max: 10,
+            message: '长度超过10个字符',
+            trigger: 'keyup'
+          }],
+          sellingStatus: [{
+            required: true,
+            message: '请选择售卖状态',
+            trigger: 'change'
+          }],
+          roomOrientation: [{
+            required: true,
+            message: '请选择房间朝向',
+            trigger: 'change'
+          }],
+          area: [{
+            required: true,
+            message: '请输入面积',
+          }, {
+            validator: checkArea,
+            trigger: 'blur',
+            trigger: 'keyup'
+
+          }],
+          renovation: [{
+            required: true,
+            message: '请选择装修类型',
+            trigger: 'change'
+          }],
+          roomStructure: [{
+            required: true,
+            message: '请选择房间结构',
+            trigger: 'change'
+          }],
+          averagePrice: [{
+            required: true,
+            message: '请输入均价',
+          }, {
+            validator: checkAveragePrice,
+            trigger: 'blur',
+            trigger: 'keyup'
+
+          }],
+          purpose: [{
+            required: true,
+            message: '请选择用途',
+            trigger: 'change'
+          }],
+          huxing: [{
+            required: true,
+            message: '请选择户型',
+            trigger: 'change'
+          }]
+        }, //户型图表单验证
+        /** 户型图弹窗data end */
+        xinProjectData: [], // 新项目列表数据data
+        syncBox: false, // 点击同步时的弹框
+        photoBox: false, // 项目图片弹框显示隐藏
+        clickProjectId: "", // 点击图片时的项目id
+        distributeBox: false, // 驻场分配弹框显示隐藏
+        disProjectId: 0, // 分配驻场时的项目id存储
+        houseImgActive: '', //当前操作户型图
+        announceDiaData: {}, //点击发布时要传的对象
+        projectDetail: false, //项目的详情
+        proDetailId: "",
+        tongjiProjectId: "", //点击统计的项目列表的存储
+        project_type:[],   // 楼盘类型
+        project_special:[],  // 楼盘特色
+        isShowCompanyId: '',  // 当前登录人是否是公司的id
+        deleteRowMessage:""
       };
-    }, 
+    },
     created() {
-      this.houseTypeVisible = false
+      this.keyWordForm = this.defaultKeyWord()
+      let infoObj = JSON.parse(localStorage.getItem("myInfo"))
       axios.get("/api/buildingList/can").then(res => {
         if (res.status === 200) {
-
+          // let infoObj = JSON.parse(localStorage.getItem("myInfo"))
           this.getAllStatusType()
           this.getAllCity()
-          this.keyWordForm = this.defaultKeyWord()
-          this.keyWordForm.commercialInfo = JSON.parse(localStorage.getItem("myInfo")).companyId || -1
-          getMyCompany().then(res => {
-            this.keyWordCompany = res.data
-            let isCompanyItem = false
-            let infoObj = JSON.parse(localStorage.getItem("myInfo"))
-            if (infoObj.dep.isCompany) {
-              this.keyWordCompany.forEach(val => {
-                if (val.d_id === infoObj.companyId)
-                  isCompanyItem = true
-              })
-              isCompanyItem ? "" : this.keyWordCompany.push({
-                "d_id": infoObj.companyId,
-                "name": infoObj.companyName
-              })
-              this.keyWordForm.commercialInfo = infoObj.companyId
-            }
-            console.log(res);
-          })
+          this.getHouseSpecial()
+          this.getNewProjectData()
           this.getAllProvinceList()
-          this.getTableList()
+          this.isShowCompanyId = infoObj.dep.companyId
+          getMyCompany().then(res => {
+            if(res.status === 200){
+              this.keyWordCompany = res.data
+            }
+          })
+          this.keyWordForm.commercialInfo = infoObj.dep.companyId < 0 ? -1 : infoObj.dep.companyId
+          // 页面加载获取项目类型
+          getProjectState().then(res => {
+            if(res.status === 200){
+              this.project_type = res.data
+            }
+            // console.log(res);
+          })
         }
       }).catch(err => {
         if (err.response.status === 403) {
@@ -225,10 +405,18 @@
       })
     },
     methods: {
+      // 获取楼盘特色
+      getHouseSpecial(){
+        getHouseSpecial().then(res => {
+          // console.log(res);
+          this.project_special = res.data
+        })
+      },
       //初始化表单对象
       initFormData: function () {
         let obj = {
           projectType: "",
+          projectAgent:"",
           projectState: "",
           name: "",
           provinceId: "",
@@ -238,7 +426,7 @@
           buildingPrice: '',
           address: "",
           coordinate: "", // 地图坐标
-          statusSell: "", //  是否上架
+          statusSell: 2, //  是否上架
           buildingProperty: "", // 楼盘性质
           platform: [], // 同步系统
           customerType: "", // 项目有效类型
@@ -252,82 +440,103 @@
           otherInfo: "",
           moneyUnit: "",
           timeOfEnd: "",
-          lowerFrame: false
+          lowerFrame: false,
+          proDetail: 0,
+          specificOpeningTime:"",
+          reportingType:"",
+          fixedPointProtectionPeriod:""
         }
         this.cityDetails = []
         this.coverPhoto = ''
         this.addForm = Object.assign({}, this.addForm, obj)
       },
       //上传图片
-      upLoadImage(e) {
-        let _that = this
-        const file = e.target.files[0];
+      // upLoadImage(e) {
+      //   let _that = this
+      //   const file = e.target.files[0];
 
-        if (!file) {
-          return;
-        }
+      //   if (!file) {
+      //     return;
+      //   }
 
-        new ImageCompressor(file, {
-          quality: .9,
-          maxWidth: 2000,
-          maxHeight: 2000,
-          success(result) {
-            // debugger
-            const formData = new FormData();
+      //   new ImageCompressor(file, {
+      //     quality: .9,
+      //     maxWidth: 2000,
+      //     maxHeight: 2000,
+      //     success(result) {
+      //       // debugger
+      //       const formData = new FormData();
 
-            formData.append('file', result, result.name);
-            formData.append("watermark", false)
+      //       formData.append('file', result, result.name);
+      //       formData.append("watermark", false)
 
-            // Send the compressed image file to server with XMLHttpRequest.
-            if (result.size > 1 * 1024 * 1024 || result.size < 3 * 1024) {
-              _that.$message('图片大小要在3K~1M之间')
-              return
-            } else {
-              _that.$ajax.post('/img/upload', formData).then(res => {
-                res = res.data
-                if (res.images && res.images.length > 0) {
-                  if (res.images[0].src !== 'file size is too small') {
-                    let item = {
-                      kind: 1,
-                      imgUrl: res.images[0].src
-                    }
-                    if (_that.uploadType === 1) {
-                      _that.addForm.projectPictureList.push(item)
-                    } else if (_that.uploadType === 2) {
-                      _that.upLoadImageOne(item)
-                    }
-                  }
-                }
-              })
-            }
-          },
-          error(e) {
-            console.log(e.message);
-          },
-        });
+      //       // Send the compressed image file to server with XMLHttpRequest.
+      //       if (result.size > 1 * 1024 * 1024 || result.size < 3 * 1024) {
+      //         _that.$message('图片大小要在3K~1M之间')
+      //         return
+      //       } else {
+      //         _that.$ajax.post('/img/upload', formData).then(res => {
+      //           res = res.data
+      //           if (res.images && res.images.length > 0) {
+      //             if (res.images[0].src !== 'file size is too small') {
+      //               let item = {
+      //                 kind: 1,
+      //                 imgUrl: res.images[0].src
+      //               }
+      //               _that.addForm.projectPictureList.push(item)
+      //             }
+      //           }
+      //         })
+      //       }
+      //     },
+      //     error(e) {
+      //       console.log(e.message);
+      //     },
+      //   });
 
-        /*let uploadImg = e.target.files[0]
-        let param = new FormData()
-        param.append('img',uploadImg)
-        param.append("watermark", false)
-        //this.$axios.post(url,param).then(res=>{
-        this.$ajax.post('/img/upload',param).then(res=>{
-          res=res.data
-          if(res.images&&res.images.length>0){
-            if(res.images[0].src!=='file size is too small'){
-              let item = {
-                kind:1,
-                imgUrl:res.images[0].src
-              }
-              if(this.uploadType===1){
-                this.addForm.projectPictureList.push(item)
-              }else if(this.uploadType===2) {
-                this.upLoadImageOne(item)
-              }
-            }
+      //   /*let uploadImg = e.target.files[0]
+      //   let param = new FormData()
+      //   param.append('img',uploadImg)
+      //   param.append("watermark", false)
+      //   //this.$axios.post(url,param).then(res=>{
+      //   this.$ajax.post('/img/upload',param).then(res=>{
+      //     res=res.data
+      //     if(res.images&&res.images.length>0){
+      //       if(res.images[0].src!=='file size is too small'){
+      //         let item = {
+      //           kind:1,
+      //           imgUrl:res.images[0].src
+      //         }
+      //         if(this.uploadType===1){
+      //           this.addForm.projectPictureList.push(item)
+      //         }else if(this.uploadType===2) {
+      //           this.upLoadImageOne(item)
+      //         }
+      //       }
+      //     }
+      //   })*/
+      // },
+      // 获取新项目列表数据
+      getNewProjectData() {
+        // debugger
+        this.keyWordForm.pageNum = this.pageNum
+        this.keyWordForm.pageSize = this.pageSize
+        getNewProjectList({
+          params: this.keyWordForm
+        }).then(res => {
+          // console.log(res);
+          if (res.status === 200) {
+            this.count = res.data.total
+            this.xinProjectData = res.data.list
+            this.xinProjectData.filter(val => {
+              return (val.building_price = parseInt(val.building_price)) && (val.cover_photo ? "" : val.cover_photo = require("../../../assets/images/defaultImg.png"))
+            })
+          } else {
+            this.alertMessage("warning", res.message)
           }
-        })*/
+        })
       },
+      // 初始化关键词搜索数据
       defaultKeyWord() {
         const keyWordFormDate = {
           businessDistrictId: '',
@@ -335,50 +544,13 @@
           provinceId: "",
           areaId: "",
           projectState: "",
+          publishingSystem:"",
           projectType: "",
           keyword: "",
-          commercialInfo: -500
+          commercialInfo: "",
+          searchType:1
         }
         return keyWordFormDate
-      },
-      //单独上传
-      upLoadImageOne: function (item) {
-        let param = {
-          bId: this.rowExpand.id,
-          imgUrl: item.imgUrl,
-          kind: this.gallery.kind
-        }
-        this.$ajax.post('/api/buildingImage', param).then(res => {
-          res = res.data
-          if (res.status === 200) {
-            this.getProImages(this.gallery.kind)
-          }
-        })
-      },
-      //单独删除
-      delImageOne: function (item) {
-        let param = {
-          id: item.imgId
-        }
-        this.$ajax.delete('/api/buildingImage', param).then(res => {
-          res = res.data
-          if (res.status === 200) {
-            this.getProImages(this.gallery.kind)
-          }
-        })
-      },
-      //单独设置封面
-      coverImageOne: function (item) {
-        let param = {
-          id: this.rowExpand.id,
-          coverPhoto: item.img_url
-        }
-        this.$ajax.putJSON('/api/coverPhoto', param, 2).then(res => {
-          res = res.data
-          if (res.status === 200) {
-            this.getProImages(this.gallery.kind)
-          }
-        })
       },
       //对上传图片的操作
       uploadImageOpera: function (item, type = 'init') {
@@ -390,62 +562,71 @@
             this.$set(this.editDialogform, 'coverPhoto', item.imgUrl)
           }
         } else {
+          this.addForm.projectPictureList.forEach((val, index) => {
+            if (val.imgUrl === item.imgUrl) {
+              this.addForm.projectPictureList.splice(index, 1)
+              if (this.coverPhoto === item.imgUrl && this.addForm.coverPhoto) {
+                delete this.addForm.coverPhoto
+                this.coverPhoto = ''
+              }
+            }
+          })
           if (this.uploadType === 1) {
-            this.addForm.projectPictureList.forEach((val, index) => {
-              if (val.imgUrl === item.imgUrl) {
-                this.addForm.projectPictureList.splice(index, 1)
-                if (this.coverPhoto === item.imgUrl && this.addForm.coverPhoto) {
-                  delete this.addForm.coverPhoto
-                  this.coverPhoto = ''
-                }
-              }
-            })
-          } else {
-            this.editDialogform.projectPictureList.forEach((val, index) => {
-              if (val.imgUrl === item.imgUrl) {
-                this.editDialogform.projectPictureList.splice(index, 1)
-                if (this.coverPhoto === item.imgUrl && this.editDialogform.coverPhoto) {
-                  delete this.editDialogform.coverPhoto
-                  this.coverPhoto = ''
-                }
-              }
-            })
           }
+          //  else {
+          //   this.editDialogform.projectPictureList.forEach((val, index) => {
+          //     if (val.imgUrl === item.imgUrl) {
+          //       this.editDialogform.projectPictureList.splice(index, 1)
+          //       if (this.coverPhoto === item.imgUrl && this.editDialogform.coverPhoto) {
+          //         delete this.editDialogform.coverPhoto
+          //         this.coverPhoto = ''
+          //       }
+          //     }
+          //   })
+          // }
         }
       },
+      // 点击上传图片
       toUpload: function (type) {
-        if (type === 1) {
-          this.uploadType = 1
+          if (this.addForm.projectPictureList.length == 1) {
+            this.alertMessage("warning", "只能上传一张项目封面")
+            return
+          }
           this.$refs.upload.click()
-        } else {
-          this.uploadType = 2
-          this.$refs.upload1.click()
-        }
-      },
-      projectPrice() {
-        if (!isProjectPrice(this.addForm.buildingPrice)) {
-          this.alertMessage("warning", "项目价格格式不正确")
-          return false
-        }
       },
       //新增项目
       addPro: function () {
-        let coor = this.addForm.coordinate.split(',')
-        if (coor.length !== 2 || !coor[1]) {
-          this.alertMessage("warning", "请输入正确的地图坐标")
-        } else {
+        // console.log(this.addForm);
           this.submitForm('addForm').then(res => {
+            let coor = this.addForm.coordinate.split(',')
+            // if (this.addForm.projectState == 6 && !this.addForm.specificOpeningTime) {
+            //   this.alertMessage("warning", "请选择开盘时间")
+            //   return
+            // }
+            if (coor.length !== 2 || !coor[1]) {
+              this.alertMessage("warning", "请输入正确的地图坐标")
+              return
+            } 
+            if (this.addForm.timeOfEnd && new Date(this.addForm.timeOfEnd).getTime() < +new Date() - 86400000) {
+              this.alertMessage("warning", "合同截止时间应大于当前时间",2000)
+              return
+            }
             let param = Object.assign({}, this.addForm)
             param.platform = this.getPlatformNum(param.platform)
             param.lowerFrame ? "" : param.lowerFrame = false
             param.otherInfo = this.cityDetails.join(',')
-            console.log(param);
+            // 新增若不是强推项目，则排序码传0
+            if(this.addForm.projectState != 5){
+              this.addForm.originalPosition=0
+              this.addForm.decoration=0
+            }
+            // console.log(param);
             this.$ajax.postJSON('/api/building', param).then(res => {
               res = res.data
               if (res.status === 200) {
                 this.dialogAddFormVisible = false
                 this.alertMessage("success", "新增成功")
-                this.getTableList()
+                this.getNewProjectData()
                 this.initFormData()
               } else {
                 this.alertMessage("warning", res.message)
@@ -456,37 +637,10 @@
             let toastMsg = this.rules[Object.keys(error)[0]][0].message
             this.$message(toastMsg)
           })
-        }
-        /*let obj={
-          projectType: "",
-          projectState: "",
-          name: "",
-          provinceId: "",
-          cityId: "",
-          areaId: "",
-          businessDistrictId: "",  // 商区
-          buildingPrice: '',
-          address: "",
-          coordinate: "", // 地图坐标
-          statusSell: "",    //  是否上架
-          buildingProperty: "",  // 楼盘性质
-          platform: [],    // 同步系统
-          customerType: "",   // 项目有效类型
-          moneyDes: "",    // 佣金
-          proTimeAgentReport: "",  //  报备保护期
-          reportRule: "",        //   报备规则
-          proTimeAgentLook: "",   //  带看保护期
-          proTimeDownPayment: "",  //   下定保护期
-          dialogImageUrl: "",
-          projectPictureList: [],
-          otherInfo: "",
-        }*/
       },
       // 关闭模态窗
       handleClose: function (done) {
-        // this.cityList = []
         this.clearCityList()
-        this.expands = []
         this.SearchStatisticsForm = {
           buildingId: 0,
           day: 5,
@@ -515,9 +669,36 @@
       },
       //获取所有城市
       getAllCity: function () {
+        let infoObj = JSON.parse(localStorage.getItem("myInfo")).company
         getAllProvince().then(res => {
           this.cityList = res.data
-          console.log(res);
+          // debugger
+          if(infoObj){
+            let arr = infoObj.areaName.split(",")
+            // this.allCity = [{CityID:infoObj.area,CityName:arr[1]}]
+            this.addProvinceChange(infoObj.province)
+            this.addForm.provinceId = infoObj.province
+            this.addForm.cityId = infoObj.area
+            this.addCityChange(infoObj.area,'init')
+            this.cityDetails = [arr[0],arr[1]]
+          }else{
+            // console.log("city",this.cityList[3])
+            this.addProvinceChange(17)
+            // this.allCity = this.cityList[3].CityList;
+            this.addForm.provinceId = 17
+            this.addForm.cityId = 1
+            this.cityDetails = ['湖北省','武汉市']
+            getAddAreaList({
+              params: {
+                cityID: 1
+              }
+            }).then(res => {
+              this.allArea = res.data
+            })
+            // this.addCityChange(1,'init')
+            this.cityMessage.cityId = 1
+          }
+          // console.log(res);
         })
       },
       // 获取选项栏数据
@@ -532,81 +713,100 @@
           }
           this.projectStatusData = res.data["117"].children
           this.projectTypeData = res.data["111"].children
-          console.log(res);
+          // console.log(res);
+        })
+      },
+      // 省市区商圈改变时的方法封装
+      getKeyFormData(params,string){
+        getTargetPlaceInfo({params:params}).then(res => {
+          if(res.status === 200){
+            string == 'allCityData' ? this.allCityData = res.data : 
+            string == 'allAreaData' ? this.allAreaData = res.data : this.allBusinessData = res.data
+          }
         })
       },
       // 获取所有省份
       getAllProvinceList() {
-        getTargetPlaceInfo({
-          params: this.getTargetPlaceData
-        }).then(res => {
-          this.allProvinceData = res.data
-        })
-        let strPriCity = ""
         let provinceId = 0
         let cityId = 0
-        let isProvince = false
         let proObj = JSON.parse(localStorage.getItem("myInfo")).dep
-        if (proObj.isCompany) {
-          provinceId = proObj.province
-          cityId = proObj.area
-          strPriCity = proObj.areaName
-          if (strPriCity) {
-            this.allProvinceData.forEach(val => {
-              if (val.provinceId === provinceId) {
-                isProvince = true
-              }
-            })
-            isProvince ? "" : this.allProvinceData.push({
-              "province": strPriCity.split(",")[0],
-              "provinceId": provinceId
-            })
-            this.allCityData = [{
-              "city": strPriCity.split(",")[1],
-              "cityId": cityId
-            }]
-            this.keyWordForm.cityId = cityId
-            this.keyWordForm.provinceId = provinceId
-          }
-        }
-      },
-      // 获取表格内容
-      getTableList() {
-        this.keyWordForm.pageNum = this.pageNum
-        this.keyWordForm.pageSize = this.pageSize
-        console.log(this.keyWordForm);
-        getProjectTableList({
-          params: this.keyWordForm
+        let that = this
+        let params = {}
+        getTargetPlaceInfo({
+          params: that.getTargetPlaceData
         }).then(res => {
-          if (res.status === 200) {
-            console.log(res.data.list);
-            this.count = res.data.total
-            this.tableData = res.data.list;
-          } else if (res.status === 403) {
-            this.$router.push({
-              name: "403errorPage"
-            })
-            return
+          if(res.status === 200){
+            that.allProvinceData = res.data
+            // 当所在人属于公司的时候，需要展示省和市
+            if (proObj.isCompany) {
+              provinceId = proObj.province
+              cityId = proObj.area
+              if (proObj.areaName) {
+                that.allProvinceData.forEach(val => {
+                  if (val.provinceId === provinceId) {
+                    that.getTargetPlaceData.provinceId = provinceId
+                    that.keyWordForm.provinceId = provinceId
+                    params.provinceId = provinceId
+                    getTargetPlaceInfo({params: params}).then(res => {
+                      if(res.status === 200){
+                        that.allCityData = res.data
+                        that.allCityData.forEach(val => {
+                          if(val.cityId == cityId){
+                            that.keyWordForm.cityId = cityId
+                          }
+                        })
+                        params.cityId = cityId
+                        that.getTargetPlaceData.cityId = cityId
+                        that.getKeyFormData(params,'allAreaData')
+                        that.getNewProjectData()
+                      }
+                    })
+                    // that.getKeyFormData(params,'allCityData')
+                  }
+                })
+              }
+            }else{
+              that.getNewProjectData()
+            }
           }
         })
       },
       // 编辑操作
-      toEdit: function (title) {
-        // debugger
-        this.editProject_title = title
+      toEdit: function (id, title) {
         axios.put("/api/building/can").then(res => {
           if (res.status === 200) {
-            this.detailVisible = false
-            this.EditVisible = true
-            this.$set(this.editDialogform, 'features', this.bitOpera1(this.dictionary['149'].children, activeItem.features))
-            this.$set(this.editDialogform, 'infrastructure', this.bitOpera1(this.dictionary['160'].children, activeItem.infrastructure))
-            this.$set(this.editDialogform, 'platform', this.bitOpera1(this.dictionary['145'].children, activeItem.platform))
-            this.$set(this.editDialogform, 'buildingType', this.bitOpera1(this.dictionary['135'].children, activeItem.buildingType))
-            //请求城市的所有接口
-            this.addProvinceChange(this.editDialogform.provinceId, 'init')
-            this.addCityChange(this.editDialogform.cityId, 'init')
-            this.addAreaChange(this.editDialogform.areaId, 'init')
-            this.businessChange(this.editDialogform.businessDistrictId, 'init')
+            getProjectTableRowInfo({
+              params: {
+                id: id
+              }
+            }).then(res => {
+              if (res.status === 200) {
+                // 将项目id存储
+                this.projectIdProtect = id
+                this.isShowProjectSort2 = false
+                // 调获取排序码接口
+                this.lookSortKey(id)
+                this.editDialogform = Object.assign({}, res.data)
+                activeItem = res.data
+                this.isShowProjectSort2 = this.editDialogform.projectState == 5 ? true : false
+                this.editDialogform.originalPosition = this.editDialogform.decoration
+                console.log(this.editDialogform.decoration);
+                this.$set(this.editDialogform, 'coordinate', `${res.data.longitude},${res.data.latitude}`) //跟进返回的经纬度创建地图坐标字段
+                this.detailVisible = false
+                this.EditVisible = true
+                this.$set(this.editDialogform, 'features',this.bitOpera1(this.project_special, activeItem.features))
+                // this.editDialogform.features = this.bitOpera1(this.dictionary['149'].children, activeItem.features)
+                this.$set(this.editDialogform, 'infrastructure', this.bitOpera1(this.dictionary['160'].children, activeItem.infrastructure))
+                this.$set(this.editDialogform, 'platform', this.bitOpera1(this.dictionary['145'].children, activeItem.platform))
+                this.$set(this.editDialogform, 'buildingType', this.bitOpera1(this.dictionary['135'].children, activeItem.buildingType))
+                //请求城市的所有接口
+                this.addProvinceChange(this.editDialogform.provinceId, 'init')
+                this.addCityChange(this.editDialogform.cityId, 'init')
+                this.addAreaChange(this.editDialogform.areaId, 'init')
+                this.businessChange(this.editDialogform.businessDistrictId, 'init')
+              }
+            })
+            this.editProject_title = title
           }
         }).catch(err => {
           if (err.response.status === 403) {
@@ -618,104 +818,6 @@
       onExport() {
         //导出按钮
       },
-      // 单击每行事件
-      rowClick(row, event, column) {
-        // debugger
-        //点击表格行 展开
-        let index = this.expands.indexOf(row.id);
-        if (index > -1) {
-          this.expands = this.expands.splice(index, -1);
-        } else {
-          this.expands = [];
-          this.expands.push(row.id);
-        }
-        getProjectTableRowInfo({
-          params: {
-            id: row.id
-          }
-        }).then(res => {
-          if (res.status === 200) {
-            this.rowExpand = Object.assign({}, this.rowExpand, res.data)
-            this.editDialogform = Object.assign({}, this.rowExpand, res.data)
-            activeItem = res.data
-            this.$set(this.editDialogform, 'coordinate', `${res.data.longitude},${res.data.latitude}`) //跟进返回的经纬度创建地图坐标字段
-          }
-        })
-      },
-      //控制只显示当前一行
-      showDetail(rowdata, expandedRows) {
-        if (expandedRows.length) {
-          this.expands = [];
-          if (rowdata) {
-            this.expands.push(rowdata.id);
-          }
-        } else {
-          this.expands = [];
-        }
-      },
-      // 新增表单 模态框
-      /*submitAddForm(formName) {
-        let param = Object.assign({}, this.addForm)
-        param.platform = this.getPlatformNum(param.platform)
-        this.$ajax.postJSON('/api/building', param).then(res => {
-          debugger
-        })
-        /!*this.$refs[formName].validate(valid => {
-          if (valid) {
-            let platformNum;
-            this.projectPictureList = []
-            platformNum = this.addPlatform.length == 1 ? this.addPlatform[0] : (this.addPlatform.length == 2 ?
-              this.addPlatform[0] | this.addPlatform[1] : this.addPlatform[0] | this.addPlatform[1] | this.addPlatform[2])
-            this.addForm.platform = platformNum
-            console.log(this.addProjectUrl);
-            this.addProjectUrl.forEach(value => {
-              this.projectPictureList.push({"kind": 0, "imgUrl": value})
-            })
-            console.log(this.projectPictureList);
-            this.addForm.projectPictureList = this.projectPictureList
-            this.addAllProvinceData.forEach(value => {
-              if (value.ID == this.addForm.provinceId) {
-                this.otherInfo = value.ProvinceName
-                value.CityList.forEach(val => {
-                  if (val.CityID == this.addForm.cityId) {
-                    this.otherInfo += "," + val.CityName
-                    return
-                  }
-                })
-              }
-            })
-            this.addAllAreaData.forEach(value => {
-              if (value.ID == this.addForm.areaId) {
-                this.otherInfo += "," + value.AreaName
-                return
-              }
-            })
-            this.addAllBusinessData.forEach(value => {
-              if (value.ID == this.addForm.businessDistrictId) {
-                this.otherInfo += "," + value.ShangQuanName
-                return
-              }
-            })
-            this.addForm.otherInfo = this.otherInfo
-            console.log(this.addForm);
-            addNewProject(this.addForm).then(res => {
-              if (res.status === 200) {
-                this.alertMessage("success", "新增成功")
-                this.dialogAddFormVisible = false
-              } else {
-                this.alertMessage("warning", "新增失败")
-              }
-              console.log(res);
-            })
-
-
-          } else {
-            this.alertMessage("success", "请完善表单");
-            console.log("error submit!!");
-            return false;
-          }
-        })*!/
-      },*/
       //或位运算
       getPlatformNum: function (arr) {
         // debugger
@@ -734,61 +836,75 @@
       },
       //与位运算
       bitOpera1: function (arr, num) {
-        //debugger
+        // debugger
         let newArr = []
+        let bit = "";
+        let str = ""
+        // debugger
+        arr.length ?(str =  arr[0].hasOwnProperty("key") ? "key" : "codeBinary") : ""
         arr.forEach(item => {
-          let bit = item.key & num
-          if (item.key === bit) {
-            newArr.push(item.key)
+           bit = item[str] & num
+          if (item[str] === bit) {
+            newArr.push(item[str])
           }
         })
         return newArr
       },
       // 提交 项目编辑 模态框的所有tab切换表单
-      submitEditForm() {
+      submitEditForm(int) {
         // debugger
         let coor = this.editDialogform.coordinate.split(',')
+
         if (coor.length !== 2 || !coor[1]) {
           this.alertMessage("warning", "请输入正确的地图坐标")
         } else {
-          this.submitForm('editForm').then(res => {
-            let param = Object.assign({}, this.editDialogform)
-            param.platform = this.getPlatformNum(param.platform)
-            param.features = this.getPlatformNum(param.features)
-            param.infrastructure = this.getPlatformNum(param.infrastructure)
-            param.buildingType = this.getPlatformNum(param.buildingType)
-            param.otherInfo = this.cityDetails.join(',')
-            // if(!addForm.coordinate.split("").indexOf(",")){
-            //   debugger
-            //   this.alertMessage("warning", "地图坐标格式不正确")
-            //   return false
-            // }
-            this.$ajax.putJSON('/api/building', param).then(res => {
-              res = res.data
-              if (res.status === 200) {
-                // debugger
-                this.getTableList()
-                this.alertMessage("success", "编辑成功")
-                getProjectTableRowInfo({
-                  params: {
-                    id: this.rowExpand.id
-                  }
-                }).then(res => {
-                  if (res.status === 200) {
-                    // debugger
-                    this.rowExpand = Object.assign({}, this.rowExpand, res.data)
-                    this.editDialogform = Object.assign({}, this.rowExpand, res.data)
-                    activeItem = res.data
-                    this.$set(this.editDialogform, 'coordinate', `${res.data.longitude},${res.data.latitude}`)
-                  }
-                })
-                this.EditVisible = false
-                this.expands = []
-                this.clearChoseCityMsg()
-              } else {
-                this.alertMessage("warning", res.message)
+          this.submitForm("editForm").then(res => {
+            this.submitForm('protectionRules').then(res => {
+              // if (this.editDialogform.projectState == 6 && !this.editDialogform.specificOpeningTime) {
+              //   this.alertMessage("warning", "请选择开盘时间")
+              //   return
+              // }  
+              if(this.editDialogform.timeOfEnd && new Date(this.editDialogform.timeOfEnd).getTime() < +new Date() - 86400000){
+                this.alertMessage("warning", "合同截止时间应大于当前时间",2000)
                 return
               }
+              let param = Object.assign({}, this.editDialogform)
+              param.platform = this.getPlatformNum(param.platform)
+              param.features = this.getPlatformNum(param.features)
+              param.infrastructure = this.getPlatformNum(param.infrastructure)
+              param.buildingType = this.getPlatformNum(param.buildingType)
+              param.otherInfo = this.cityDetails.join(',')
+              if(param.projectState != 5){
+                param.decoration = 0
+                param.originalPosition = 0
+              }
+              // console.log(!int && this.editDialogform.projectState == "10");
+              // debugger
+              if(!int && this.editDialogform.projectState == "10"){
+                  this.deleteProject = true
+                  this.deleteProjectId = this.editDialogform.id
+                  this.delProjectTitle = "删除项目【"+this.editDialogform.name+"】"
+              }else{
+                this.$ajax.putJSON('/api/building', param).then(res => {
+                  res = res.data
+                  if (res.status === 200) { 
+                    this.editDialogform.projectState == "10" ?         
+                    this.alertMessage("success", "删除成功") : this.alertMessage("success", "编辑成功")
+                    this.lookEditorBox = false
+                    this.deleteProject = false
+                    this.EditVisible = false
+                    this.getNewProjectData()
+                  } else {
+                    // this.editDialogform.projectState == "10" ?
+                    // this.alertDelProjectMsg = res.message :
+                    this.alertMessage("warning", res.message)
+                    return
+                  }
+                })
+              }
+            }).catch(error => {
+              let toastMsg = this.rules[Object.keys(error)[0]][0].message
+              this.$message(toastMsg)
             })
           }).catch(error => {
             let toastMsg = this.rules[Object.keys(error)[0]][0].message
@@ -797,92 +913,111 @@
         }
       },
       // 项目统计 模态框
-      getProjectStatistics(type) {
-        this.SearchStatisticsForm.buildingId = this.rowExpand.id
-        let param = {
-          buildingId: this.rowExpand.id,
-          day: 5,
-          endTime: '',
-          startTime: '',
-          type: 1,
-          pageSize: 5,
-          pageNum: 1
-        }
-        if (type === 'info') {
-          this.SearchStatisticsForm.startTime = this.dataRange ? this.dataRange[0] : ''
-          this.SearchStatisticsForm.endTime = this.dataRange ? this.dataRange[1] : ''
-        }
-        this.statisticsVisible = true;
-        getProjectStatistics({
-          params: type === 'init' ? param : this.SearchStatisticsForm
-        }).then(res => {
-          // debugger
-          if (res.status === 200) {
-            this.statisticsTableData = res.data
-            this.countSum = res.data.total
-          }
-          let type = this.SearchStatisticsForm.type
-          this.statisticsTableData.list.forEach(value => {
-            if (type === 1 || type === 2) {
-              value.time = value.time ? value.time.slice(0, value.time.lastIndexOf(':')) : ""
-              value.money = value.money ? value.money + "元" : ""
-            } else if (type === 5 || type === 6) {
-              value.time = value.time ? value.time.slice(0, value.time.lastIndexOf(' ')) : ""
-              value.money = value.money ? value.money + "万元" : ""
-            } else {
-              value.time = value.time ? value.time.slice(0, value.time.lastIndexOf(' ')) : ""
-              value.money = value.money ? value.money + "元" : ""
+      getProjectStatistics(type, projectId) {
+        axios.get("/api/buildingStatistics/can").then(res => {
+          if(res.status === 200){
+
+            this.tongjiProjectId = projectId
+            this.SearchStatisticsForm.buildingId = projectId
+            let param = {
+              buildingId: projectId,
+              day: 5,
+              endTime: '',
+              startTime: '',
+              type: 1,
+              pageSize: 5,
+              pageNum: 1
             }
-          })
-          switch (type) {
-            case 1:
-              this.statisticsCount = {
-                valid: this.statisticsTableData.buildingValidReportSum
+            if (type === 'info') {
+              this.SearchStatisticsForm.startTime = this.dataRange ? this.dataRange[0] : ''
+              this.SearchStatisticsForm.endTime = this.dataRange ? this.dataRange[1] : ''
+            }
+            this.statisticsVisible = true;
+            getProjectStatistics({
+              params: type === 'init' ? param : this.SearchStatisticsForm
+            }).then(res => {
+              // debugger
+              if (res.status === 200) {
+                this.statisticsTableData = res.data
+                this.countSum = res.data.buildingReportSum
+                this.customerTotals = res.data.total
               }
-              break
-            case 2:
-              this.statisticsCount = {
-                valid: this.statisticsTableData.buildingValidLookSum
+              let type = this.SearchStatisticsForm.type
+              this.statisticsTableData.list.forEach(value => {
+                if (type === 1 || type === 2) {
+                  value.time = value.time ? value.time.slice(0, value.time.lastIndexOf(':')) : ""
+                  value.money = value.money ? value.money + "元" : ""
+                } else if (type === 5 || type === 6) {
+                  value.time = value.time ? value.time.slice(0, value.time.lastIndexOf(' ')) : ""
+                  value.money = value.money ? value.money + "万元" : ""
+                } else {
+                  value.time = value.time ? value.time.slice(0, value.time.lastIndexOf(' ')) : ""
+                  value.money = value.money ? value.money + "元" : ""
+                }
+              })
+              switch (type) {
+                case 1:
+                  this.statisticsCount = {
+                    valid: this.statisticsTableData.buildingValidReportSum,
+                    countSum: this.statisticsTableData.buildingReportSum
+                  }
+                  break
+                case 2:
+                  this.statisticsCount = {
+                    valid: this.statisticsTableData.buildingValidLookSum,
+                    countSum: this.statisticsTableData.buildingLookSum
+                  }
+                  break
+                case 3:
+                  this.statisticsCount = {
+                    valid: this.statisticsTableData.buildingPrcMoneySum,
+                    countSum: this.statisticsTableData.buildingPrcSum
+                  }
+                  break
+                case 4:
+                  this.statisticsCount = {
+                    valid: this.statisticsTableData.buildingSubscribeMoneySum,
+                    countSum: this.statisticsTableData.buildingSubscribeSum
+                  }
+                  break
+                case 5:
+                  this.statisticsCount = {
+                    valid: this.statisticsTableData.buildingInitialMoneySum,
+                    countSum: this.statisticsTableData.buildingInitialSum
+                  }
+                  break
+                case 6:
+                  this.statisticsCount = {
+                    valid: this.statisticsTableData.buildingNetSignMoneySum,
+                    countSum: this.statisticsTableData.buildingNetSignSum
+                  }
+                  break
+                case 7:
+                  this.statisticsCount = {
+                    valid: this.statisticsTableData.unsubscribePrcMoneySum,
+                    return: this.statisticsTableData.hadUnsubscribePrcSum,
+                    countSum: this.statisticsTableData.unsubscribePrcSum
+                  }
+                  break
+                case 8:
+                  this.statisticsCount = {
+                    valid: this.statisticsTableData.unsubscribeMoneySum,
+                    return: this.statisticsTableData.hadUnsubscribeSum,
+                    countSum: this.statisticsTableData.unsubscribeSum
+                  }
+                  break
               }
-              break
-            case 3:
-              this.statisticsCount = {
-                valid: this.statisticsTableData.buildingPrcMoneySum
-              }
-              break
-            case 4:
-              this.statisticsCount = {
-                valid: this.statisticsTableData.buildingSubscribeMoneySum
-              }
-              break
-            case 5:
-              this.statisticsCount = {
-                valid: this.statisticsTableData.buildingInitialMoneySum
-              }
-              break
-            case 6:
-              this.statisticsCount = {
-                valid: this.statisticsTableData.buildingNetSignMoneySum
-              }
-              break
-            case 7:
-              this.statisticsCount = {
-                valid: this.statisticsTableData.unsubscribePrcMoneySum,
-                return: this.statisticsTableData.hadUnsubscribePrcSum
-              }
-              break
-            case 8:
-              this.statisticsCount = {
-                valid: this.statisticsTableData.unsubscribeMoneySum,
-                return: this.statisticsTableData.hadUnsubscribeSum
-              }
-              break
+            })
+          }
+        }).catch(err => {
+          if(err.response.status === 403){
+            this.alertMessage("warning","无操作权限")
+            return
           }
         })
       },
       // 项目统计模态框中的 搜索 按钮
       searchStatistics() {
-        console.log(this.SearchStatisticsForm)
         this.SearchStatisticsForm.pageNum = 1
         this.SearchStatisticsForm.pageSize = 5
         let TJData = [{
@@ -1007,17 +1142,7 @@
             this.currentPhase = "全部"
             break
         }
-        this.getProjectStatistics('info')
-      },
-      // 双击行展开
-      rowDblclick(row, event) {
-        // this.rowDblclickId = row.id
-        console.log("OKKK");
-        console.log(row, event);
-        this.detailVisible = true;
-        this.getStaff(this.rowExpand.id)
-        this.getOperationRecord(this.rowExpand.id)
-        this.getProImages()
+        this.getProjectStatistics('info', this.tongjiProjectId)
       },
       // 获取项目明细人员列表
       getStaff: function (id) {
@@ -1038,7 +1163,7 @@
           kind: type
         }
         this.gallery.kind = type
-        this.$ajax.get('/api//buildingImageByBuildingId', param).then(res => {
+        this.$ajax.get('/api/buildingImageByBuildingId', param).then(res => {
           res = res.data
           if (res.status === 200) {
             this.gallery.galleryList = res.data
@@ -1079,7 +1204,7 @@
           this.$message('请选择项目驻场')
         } else {
           let param = {
-            bId: this.rowExpand.id,
+            bId: this.disProjectId,
             eId: this.allotPersonForm.id,
             mobileShowMode: this.allotPersonForm.mobileShowMode
           }
@@ -1087,7 +1212,7 @@
             res = res.data
             if (res.status === 200) {
               this.personVisible = false
-              this.getStaff(this.rowExpand.id)
+              this.getStaff(this.disProjectId)
               let obj = {
                 id: '',
                 name: "",
@@ -1095,7 +1220,7 @@
                 duty: ""
               }
               this.allotPersonForm = Object.assign({}, this.allotPersonForm, obj)
-              this.alertMessage("warning", "分配成功")
+              this.alertMessage("success", "分配成功")
             } else {
               this.$message(res.message)
             }
@@ -1112,9 +1237,18 @@
       },
       //点击分配人员
       clickPutPerson() {
-        this.allotPersonForm.name = ""
-        this.staffSearch = []
-        this.personVisible = true
+        axios.post("/api/itemMember/can").then(res => {
+          if(res.status === 200){
+            this.allotPersonForm.name = ""
+            this.staffSearch = []
+            this.personVisible = true
+          }
+        }).catch(err => {
+          if(err.response.status === 403){
+            this.alertMessage("warning", "无操作权限")
+            return
+          }
+        })
       },
       // 获取人员列表
       searchStaff: function () {
@@ -1150,23 +1284,18 @@
       },
       // 传递删除行的index
       confirmDelRowindex(row) {
+        // this.deleteRowMessage = ""
+        // let param = {
+        //   id: row.id
+        // }
+        // this.$ajax.delete('/api/itemMember', param).then(res => {
+        //   res = res.data
+        //   if(res.status === 410){
+        //     this.deleteRowMessage = res.message
+        //   }
+        // })
         this.deleteRowId = row.id
         this.confirmDelVisible = true
-        // this.$confirm('是否删除此条数据？', '确认信息', {
-        //   distinguishCancelAndClose: true,
-        //   confirmButtonText: '确定',
-        //   cancelButtonText: '取消'
-        // }).then(() => {
-        //   this.$ajax.delete('/api/itemMember', param).then(res => {
-        //     res = res.data
-        //     if (res.status === 200) {
-        //       this.alertMessage("warning", "删除成功")
-        //       this.getStaff(this.rowExpand.id)
-        //     }else{
-        //       this.alertMessage("warning", res.message)
-        //     }
-        //   })
-        // })
       },
       setPhoneRule(row) {
         this.setPhoneRuleBox = true
@@ -1181,7 +1310,7 @@
             if (res.data.status === 200) {
               this.setPhoneRuleBox = false
               this.alertMessage("success", "设置成功")
-              this.getStaff(this.rowExpand.id)
+              this.getStaff(this.disProjectId)
             } else {
               this.alertMessage("warning", res.data.message)
             }
@@ -1198,10 +1327,29 @@
         this.$ajax.delete('/api/itemMember', param).then(res => {
           res = res.data
           if (res.status === 200) {
-            this.alertMessage("warning", "删除成功")
-            this.getStaff(this.rowExpand.id)
-          } else {
+            this.alertMessage("success", "删除成功")
+            this.getStaff(this.disProjectId)
+          }else if(res.status === 410){
+            this.$confirm(res.message+', 是否继续?', '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              param.deleteTag = 1
+              this.$ajax.delete('/api/itemMember', param).then(res => {
+                res = res.data
+                if(res.status === 200){
+                  this.alertMessage("success", "删除成功")
+                  this.getStaff(this.disProjectId)
+                }else{
+                 this.alertMessage("warning", res.message)
+                 return
+                }
+              })
+            })
+          }else{
             this.alertMessage("warning", res.message)
+            return
           }
           this.confirmDelVisible = false;
         })
@@ -1214,110 +1362,78 @@
       // 分页器点击每页显示条数变化时
       handleSizeChange(val) {
         this.pageSize = val
-        // this.keyWordForm = {
-        //   pageNum: this.pageNum,
-        //   pageSize: this.pageSize
-        // }
-        this.getTableList()
+        this.getNewProjectData()
       },
       // 分页器点击页面跳转时
       handleCurrentChange(val) {
-        // this.keyWordForm = {pageNum: this.pageNum, pageSize: this.pageSize}
         this.pageNum = val
-        this.getTableList()
+        this.getNewProjectData()
       },
       // 项目统计分页器点击每页显示条数变化时
       handleSizeChangeTJ(val) {
         this.SearchStatisticsForm.pageSize = val
-        this.getProjectStatistics('info')
+        this.getProjectStatistics('info', this.tongjiProjectId)
       },
       // 项目统计分页器点击页面跳转时
       handleCurrentChangeTJ(val) {
         this.SearchStatisticsForm.pageNum = val
-        this.getProjectStatistics('info')
+        this.getProjectStatistics('info', this.tongjiProjectId)
       },
       // 关键词搜索选择的省份发生改变时
       provinceChange(val) {
         delete this.getTargetPlaceData.cityId
-        this.selectWeight[0]=true
         this.getTargetPlaceData.provinceId = val
         this.keyWordForm.cityId = ""
         this.keyWordForm.areaId = ""
         this.keyWordForm.businessDistrictId = ""
-        this.keyWordForm.commercialInfo = -500
         this.allAreaData = []
         this.allBusinessData = []
-        getTargetPlaceInfo({
-          params: this.getTargetPlaceData
-        }).then(res => {
-          this.allCityData = res.data
-        })
-        console.log(this.allCityData);
+        this.getKeyFormData(this.getTargetPlaceData, 'allCityData')
       },
       // 关键词搜索选择城市发生改变时
       cityChange(val) {
         delete this.getTargetPlaceData.areaId
-        this.selectWeight[1] = true
         this.getTargetPlaceData.cityId = val
         this.keyWordForm.areaId = ""
         this.keyWordForm.businessDistrictId = ""
-        this.keyWordForm.commercialInfo = -500
         this.allBusinessData = []
-        getTargetPlaceInfo({
-          params: this.getTargetPlaceData
-        }).then(res => {
-          this.allAreaData = res.data
-        })
+        this.getKeyFormData(this.getTargetPlaceData, 'allAreaData')
       },
       // 关键词搜索选择片区改变的时候
       areaChange(val) {
-        this.selectWeight[2] = true
         this.keyWordForm.businessDistrictId = ""
-        this.keyWordForm.commercialInfo = -500
         delete this.getTargetPlaceData.businessDistrictId
         this.getTargetPlaceData.areaId = val
-        getTargetPlaceInfo({
-          params: this.getTargetPlaceData
-        }).then(res => {
-          this.allBusinessData = res.data
-        })
+        this.getKeyFormData(this.getTargetPlaceData, 'allBusinessData')
       },
       businessDisChange() {
-        this.selectWeight[3] = true
-        this.keyWordForm.commercialInfo = -500
-      },
-      companyChange(){
-          this.selectWeight[4] = true
-      },
-      projectStateChange(){
-          this.selectWeight[5] = true
-      },
-      projectTypeChange(){
-          this.selectWeight[6] = true
       },
       // 根据输入的关键词查询按钮
       onSearch() {
         this.pageNum = 1
-        this.getTableList()
+        this.getNewProjectData()
         console.log(this.keyWordForm);
       },
       onReset() {
+        let infoObj = JSON.parse(localStorage.getItem("myInfo")) 
         // 重置查询条件按钮
         this.pageNum = 1
         this.pageSize = 5
         this.keyWordForm = this.defaultKeyWord()
-        this.getTableList()
+        this.keyWordForm.commercialInfo = infoObj.dep.companyId < 0 ? -500 : infoObj.dep.companyId
+        this.projectStateArr = [""]
+        this.publicSystemArr=[""]
+        this.getNewProjectData()
       },
       addProjectBtn() {
         axios.post("/api/building/can").then(res => {
           if (res.status === 200) {
+            this.isShowProjectSort1 = false
             this.dialogAddFormVisible = true
+            this.defaultLocation = ""
             this.initFormData()
             this.getAllCity()
-            /*getAllProvince().then(res => {
-              this.addAllProvinceData = res.data
-              console.log(res);
-            })*/
+            this.lookSortKey("")
           }
         }).catch(err => {
           if (err.response.status === 403) {
@@ -1329,6 +1445,7 @@
       },
       // 省份选择发生改变时，获取城市
       addProvinceChange(val, type = 'edit') {
+        // console.log(val);
         if (type === 'edit') {
           //重置下级
           this.addForm.cityId = ''
@@ -1341,16 +1458,16 @@
           this.allBusiness = []
           this.cityDetails = []
         }
-        // debugger
-
-        this.cityMessage.provinceId = val
-        this.cityList.forEach(value => {
-          if (val == value.ID) {
-            this.allCity = value.CityList
-            this.cityDetails.splice(0, 1, value.ProvinceName)
-            return
-          }
-        })
+        console.log(this.cityList);
+        if(this.cityList && this.cityList.length){
+          this.cityList.forEach(value => {
+            if (val == value.ID) {
+              this.allCity = value.CityList
+              this.cityDetails.splice(0, 1, value.ProvinceName)
+              return
+            }
+          })
+        }
       },
       // 城市选择发生改变时，获取城市区域
       addCityChange(val, type = 'edit') {
@@ -1379,6 +1496,7 @@
             }
           })
         } else {
+          // console.log(this,);
           this.cityDetails.splice(1, 1, this.editDialogform.city)
         }
       },
@@ -1422,14 +1540,6 @@
             }
           })
         }
-        /*if(this.allBusiness){
-          this.allBusiness.forEach(value => {
-            if (val == value.ID) {
-              this.cityDetails.splice(3,1,value.ShangQuanName)
-              return
-            }
-          })
-        }*/
       },
       uploadPhotoSuccess(file) {
         console.log(file);
@@ -1437,10 +1547,6 @@
         console.log(this.addProjectUrl);
       },
       handlePictureCardPreview(file) {
-        // console.log(file);
-        // this.dialogImageUrl = file.url;
-        // console.log(this.dialogImageUrl);
-        // this.dialogVisible = true;
       },
       removeAddPhone(file) {
         this.addProjectUrl.forEach((value, index) => {
@@ -1448,7 +1554,6 @@
             this.addProjectUrl.splice(index, 1)
           }
         })
-        // console.log(this.addProjectUrl);
       },
       spotFormatter: function (val) {
         if (!val) {
@@ -1461,6 +1566,564 @@
           }
           return str
         }
+      },
+      /******************* 户型图弹窗methods start lwz****************************/
+      /** 
+       * 打开户型图弹窗
+       * @id 户型id
+       */
+      openHouseType(id) {
+        this.houseTypeVisible = true
+
+        //静态数据展示赋值
+        this.sellType = this.dictionary[478]
+        console.log(this.sellType)
+        this.face = this.dictionary[437]
+        this.decoration = this.dictionary[449]
+        this.structure = this.dictionary[463]
+        this.use = this.dictionary[468]
+        this.homeType = this.dictionary[454]
+
+        this.projectId = id
+        this.getProjectHouseAjax()
+      },
+      /**
+       * 获取项目默认数据
+       * @id 项目id
+       */
+      getProjectHouseAjax() {
+        let param = {
+          bId: this.projectId
+          //   bId: 2070
+        }
+        this.$ajax.get('/api/projectHouseTypePlan', param).then(res => {
+          res = res.data
+          if (res.status === 200) {
+            if (res.data) {
+              this.houseTypeForm = res.data
+              res.data.forEach(item => {
+                this.houseTypeBoxTotal.push(true)
+                this.editBtnType.push(true)
+
+              })
+            } else {
+              let newhousetype = JSON.parse(JSON.stringify(NEWHOUSETYPE))
+              newhousetype.bId = this.projectId
+              this.houseTypeForm = []
+              this.houseTypeForm.push(newhousetype)
+              this.houseTypeBoxTotal.push(true)
+            }
+          }
+        })
+      },
+      /** 
+       * 模拟点击上传图片按钮
+       * @index 当前操作的户型box的索引
+       */
+      // houseUpload(index) {
+      //   this.$refs.houseTypeLoad[index].click()
+      // },
+      /** 
+       * 上传图片到服务器
+       * @index 当前操作的户型box的索引
+       */
+      // upLoadHouse(e, index) {
+      //   let _that = this
+      //   const file = e.target.files[0]
+      //   if (!file) {
+      //     return
+      //   }
+      //   new ImageCompressor(file, {
+      //     quality: 0.9,
+      //     maxWidth: 2000,
+      //     maxHeight: 2000,
+      //     success(result) {
+      //       // debugger
+      //       const formData = new FormData()
+
+      //       formData.append('file', result, result.name)
+      //       formData.append('watermark', false)
+
+      //       // Send the compressed image file to server with XMLHttpRequest.
+      //       if (result.size > 1 * 1024 * 1024 || result.size < 3 * 1024) {
+      //         _that.$message('图片大小要在3K~1M之间')
+      //         return
+      //       } else {
+      //         _that.$ajax.post('/img/upload', formData).then(res => {
+      //           res = res.data
+      //           if (res.images && res.images.length > 0) {
+      //             if (res.images[0].src !== 'file size is too small') {
+
+      //               let item = res.images[0].src
+      //               console.log(item)
+
+      //               _that.houseTypeForm[index].imgUrl.unshift(item)
+
+      //             }
+      //           }
+      //         })
+      //       }
+      //     },
+      //     error(e) {
+      //       console.log(e.message)
+      //     }
+      //   })
+      // },
+      /** 
+       * 删除指定图片，操作表单数据
+       * @index 当前操作的户型box的索引
+       * @picIndex 当前操作的图片索引
+       */
+      delHouseImage(index, picIndex) {
+        this.houseTypeForm[index].imgUrl.splice(picIndex, 1)
+      },
+
+      /**
+       * 添加项目图片（新增）
+       * 
+       */
+      addHouseType() {
+        let newhousetype = JSON.parse(JSON.stringify(NEWHOUSETYPE))
+        newhousetype.bId = this.projectId
+        this.houseTypeForm.push(newhousetype)
+        this.houseTypeBoxTotal.push(true)
+        let dialogBody = this.$refs.houseTypeDialog.$el.getElementsByClassName('el-dialog__body')[0]
+        setTimeout(() => {
+          dialogBody.scrollTop = dialogBody.scrollHeight
+
+        }, 100);
+
+      },
+      /**
+       * 提交项目图片  新增或编辑户型图盒子
+       * @index 当前操作的户型box的索引
+       */
+      saveHouseType(index) {
+
+        //数据验证
+        this.$refs.houseTypeDom[index].validate((valid) => {
+          if (valid) {
+            let param = JSON.parse(JSON.stringify(this.houseTypeForm[index]))
+            let url = param.imgUrl.join(',')
+            console.log(url)
+            if (!url) {
+              this.alertMessage("warning", "请上传户型图")
+              return
+            }
+            param.imgUrl = url
+            param.totalPrice = Math.round(param.averagePrice * param.area / 10000)
+            if (param.isNew) {
+              //新增户型图盒子
+              this.$ajax.post('/api/buildingImage', param).then(res => {
+                console.log(res)
+                res = res.data
+                if (res.status === 200) {
+                  delete param.isNew
+                  delete this.houseTypeForm[index].isNew
+                  this.houseTypeBoxTotal = []
+                  this.alertMessage("success", "恭喜您，操作成功")
+                  this.getNewProjectData()
+                  this.getProjectHouseAjax()
+
+                  // this.houseTypeForm = res.data
+                }else{
+                  this.alertMessage("warning",res.message,2000)
+                  return
+                }
+              })
+            } else {
+              if (this.editBtnType[index]) {
+                this.$set(this.editBtnType, index, false)
+                return
+              }
+              //编辑户型图盒子
+
+              this.$ajax.putJSON('/api/editLayout', param).then(res => {
+                res = res.data
+                console.log('====================456')
+                console.log(res)
+                if (res.status === 200) {
+                  this.houseTypeBoxTotal = []
+                  this.editBtnType = []
+                  this.alertMessage("success", "恭喜您，操作成功")
+                  this.getNewProjectData()
+                  this.getProjectHouseAjax()
+
+                  // this.houseTypeForm = res.data
+                }else{
+                  this.alertMessage("warning",res.message,2000)
+                  return
+                }
+              })
+            }
+          } else {
+            this.alertMessage("warning", "请正确填写表单")
+            return false;
+          }
+        });
+
+
+      },
+      /**
+       * 删除户型
+       * @index 当前操作的户型box的索引
+       */
+      deleteHouseType(index) {
+        this.$confirm('您确定要删除吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let param = {
+            id: this.houseTypeForm[index].id
+          }
+          this.houseTypeForm.splice(index, 1)
+          this.$ajax.delete('/api/buildingImage', param).then(res => {
+            res = res.data
+            console.log('====================456')
+            console.log(res)
+            if (res.status === 200) {
+              this.alertMessage("success", "户型已删除")
+              this.getNewProjectData()
+              // this.houseTypeForm = res.data
+            }else{
+              this.alertMessage("warning",res.message,2000)
+              return
+            }
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+
+      },
+      /** 
+       * 点击户型图盒子标题
+       */
+      clickTitle(index) {
+        //   this.houseTypeBoxTotal[index] = !this.houseTypeBoxTotal[index]
+        this.$set(this.houseTypeBoxTotal, index, !this.houseTypeBoxTotal[index])
+      },
+      /** 
+       * 打开图片查看器
+       */
+      clickWatchImg(str, picIndex) {
+        console.log('=================')
+        console.log(picIndex)
+        console.log(this.$refs[str][picIndex])
+        this.$refs[str][picIndex].click()
+      },
+      /** 
+       * 关闭户型图弹窗
+       */
+      closeHouseType() {
+        console.log('户型图弹窗关闭了')
+        this.houseTypeVisible = false
+        this.houseTypeBoxTotal = []
+        this.editBtnType = []
+        this.houseTypeForm=[]
+
+      },
+      /***************************** 户型图弹窗methods end lwz***************************/
+      /**新项目列表methods start*/
+      clickDisBtn(projectId) {
+        axios.get("/api/itemMemberByBuildingId/can").then(res => {
+          if(res.status === 200){
+            this.disProjectId = projectId
+            this.getStaff(this.disProjectId)
+            this.distributeBox = true
+          }
+        }).catch(err => {
+          if (err.response.status === 403) {
+            this.alertMessage("warning", "无操作权限")
+            return
+          }
+        })
+      },
+      closeDistributeBox() {
+        this.getNewProjectData()
+      },
+      clickSynBtn(item) {
+        axios.put("/api/publishSystemEditingProject/can").then(res => {
+          if(res.status === 200){
+            if (item.field_number == 0) {
+              this.alertMessage("info", "请先分配驻场")
+              return
+            } else {
+              console.log(item);
+              this.announceDiaData = {
+                id: item.id,
+                platform: item.platform,
+                ssrId: item.ssr_id
+              }
+              this.syncBox = true
+            }
+          }
+        }).catch(err => {
+           if (err.response.status === 403) {
+            this.alertMessage("warning", "无操作权限")
+            return
+          }
+        })
+      },
+      clickPhotoBtn(projectId) {
+        axios.get("/api/getAPicture/can").then(res => {
+          if(res.status === 200){
+            this.photoBox = true
+            this.clickProjectId = projectId
+            console.log(this.clickProjectId);
+          }
+        }).catch(err => {
+          if (err.response.status === 403) {
+            this.alertMessage("warning", "无操作权限")
+            return
+          }
+        })
+   
+      },
+      closeAnnounceBox(data) {
+        data == "yes" ? this.getNewProjectData() : ''
+        this.syncBox=false
+      },
+      closePhotoBox() {
+        this.getNewProjectData()
+      },
+      clickProject_Img(str,picIndex) {
+        this.$refs[str][picIndex].click()
+      },
+      /**新项目列表methods start*/
+      // =================================================================================
+      // 报备类型发生改变时
+      protectTypeChange(val){
+        val == 1 ? this.addForm.fixedPointProtectionPeriod = "" : (val == 2 ? this.addForm.proTimeAgentReport="" : "")
+      },
+      // 项目详情
+      goProDetails(val) {
+        this.projectDetail = true;
+        projectDetail({
+          params: {
+            bId: val
+          }
+        }).then(res => {
+          if (res.status === 200) {
+            res.data.building_price = parseInt(res.data.building_price)
+            this.proDetailId = res.data
+          }
+        })
+      },
+      // ======================================新增项目删除需求开始===========================================
+      // 条件搜索项目状态发生改变时
+      projectStateChange(val){
+        // console.log(val);
+        if(val.length > 1 && val[0] == ""){
+          this.projectStateArr = val
+          this.projectStateArr.splice(0,1)
+        }else if(val.length !== 0 && val[val.length-1] == ""){
+          this.projectStateArr=[""]
+        }
+        this.keyWordForm.projectState = this.projectStateArr.length == 0 ? "" : 
+        (this.projectStateArr.length == 1 ? this.projectStateArr[0] : this.projectStateArr.join(","))
+      },
+      sureDelProject(){
+        // debugger
+        // this.submitEditForm(1)
+        this.EditVisible = false
+        this.deleteProject = false
+        this.getNewProjectData()
+      },
+      // 发布系统选择改变时
+      projectSystemChange(val){
+        if(val.length > 1 && val[0] === ""){
+          this.publicSystemArr = val
+          this.publicSystemArr.splice(0,1)
+        }else if(val.length !== 0 && val[val.length-1] === ""){
+          this.publicSystemArr=[""]
+        }
+        this.keyWordForm.publishingSystem = this.publicSystemArr.length == 0 ? "" : 
+        (this.publicSystemArr.length == 1 ? this.publicSystemArr[0] : this.publicSystemArr.join(","))
+      },
+      closeDelDialog(){
+        this.deleteProject = false
+      },
+      defaultMessage(){
+        this.deleteProject = false
+        // debugger
+        // this.alertDelProjectMsg = ""
+      },
+      // ======================================新增项目删除需求结束===========================================
+      // ============================================项目里面选取位置方法开始======================================
+      // 点击拾取坐标
+      clickGetLocation(int){
+        let locationStr = ""
+        locationStr = (int == 1 ? this.addForm.coordinate : 
+        (int == 2 ? this.editDialogform.coordinate : ""))
+        if(locationStr){
+          let strArr = locationStr.split(",")
+          if(strArr.length == 2 && strArr[1]){
+            if(!checkLong(strArr[0])){
+              this.alertMessage("info","请输入正确的地图坐标",1500)
+              return
+            }
+            if(!checkLat(strArr[1])){
+              this.alertMessage("info","请输入正确的地图坐标",1500)
+              return
+            }
+            this.getLocationDialog = true
+            this.defaultLocation = locationStr
+          }else{
+            this.alertMessage("info","请输入正确的地图坐标",1500)
+            return
+          }
+        }else{
+          this.getLocationDialog = true
+        }
+      },
+      getProjectLocation(location){
+        this.addForm.coordinate = location
+        this.getLocationDialog = false
+        // this.getLocationDialog1 = false
+      },
+      getProjectLocation1(location){
+        // this.getLocationDialog1 = false
+        this.editDialogform.coordinate = location
+        this.getLocationDialog = false
+      },
+      // ============================================项目里面选取位置方法结束======================================
+      // =======================================新增强推项目排序需求开始=======================================
+      projectStatusChange1(val){
+        // debugger
+        if(val == 5){
+          this.isShowProjectSort1 = true
+        }else{
+          this.isShowProjectSort1 = false
+        }
+      },
+      projectStatusChange2(val){
+        if(val == 5){
+          this.isShowProjectSort2 = true
+          this.projectSortData.forEach(res => {
+            if(res.id == this.projectIdProtect){
+              this.editDialogform.decoration = res.decoration
+              this.editDialogform.originalPosition=res.decoration
+            }
+          })
+        }else{
+          this.isShowProjectSort2 = false
+        }
+      },
+      // 合并两个对象方法
+      assignObj(obj,int){
+        let defaultObj = {
+          id:"",
+          name:"",
+          buildingPrice:"",
+          otherInfo:"",
+          projectType:"",
+          projectAgent:"",
+          specificOpeningTime:"",
+          buildingProperty:"",
+          leader:"",
+          leaderMobile:"",
+          commercialInfo:"",
+          decoration :"",
+          originalPosition :""
+        }
+        for (const key in defaultObj) {
+          if (obj.hasOwnProperty(key)) {
+            defaultObj[key] = obj[key]
+          }
+        }
+        if(int == 1){
+          defaultObj.commercialInfo = JSON.parse(localStorage.getItem("myInfo")).companyId
+          defaultObj.id=-999
+        }
+        return defaultObj
+      },
+      // 点击查看强推项目排序
+      lookProjectSort(){
+        // debugger
+        this.projectSortDiaolog = true
+        this.lookSortForm = this.assignObj(this.addForm,1)
+        this.lookSortForm.otherInfo = this.cityDetails.join(",")
+      },
+      // 新增查看当前排序码
+      lookSortKey(pId){
+        // debugger
+        this.$axios.get("/api/sortCode",{params:{bId:pId}}).then(res => {
+          res = res.data
+          // debugger
+          if(res.status === 200){
+            this.projectSortData = res.data
+            if(!pId){
+              this.addForm.decoration = this.projectSortData[this.projectSortData.length-1].decoration
+              this.addForm.originalPosition = this.addForm.decoration
+            }
+          }
+        })
+      },
+      // 编辑查看当前排序码
+      editLookSort(){
+        this.projectSortDiaolog = true
+        this.lookSortForm = this.assignObj(this.editDialogform)
+        this.lookSortForm.otherInfo = this.cityDetails.join(",")
+      },
+      // =======================================新增强推项目排序需求结束=======================================
+      // =======================================新增项目列表动态功能开始=======================================
+      // 点击发布动态按钮
+      getDynamic(projectId){
+        this.releasedDynamicDlg = true
+        this.clickProjectId = projectId
+        this.checkINT = 2
+      },
+      // 关闭发布动态弹框
+      closeReleaDialog(int){
+        if(int == 1){
+          this.getNewProjectData()
+        }else if(int == 2){
+          console.log(this.$refs);
+          this.$refs.detailChild.detailChild()
+        }
+        this.releasedDynamicDlg = false
+      },
+      // 点击编辑发布信息
+      editReleaMethod(data){
+        this.releasedDynamicDlg = true
+        // 用来判断是新增动态还是编辑
+        this.checkINT = data.check
+        console.log(data);
+        this.releasedDynamicData = data
+      },
+      // =======================================新增项目列表动态功能结束=======================================
+      // =======================================户型图图片上传改成oss方法开始======================================
+      getDataUrl(item,int,arr){
+        // debugger
+        console.log(arr[0][0].path);
+        if(int == 1){
+          if(arr[0].length > 1 || this.addForm.projectPictureList.length > 0){
+            this.alertMessage("warning","只能上传一张图片",2000)
+            return
+          }else{
+            let item = {
+                        kind:1,
+                        imgUrl:arr[0][0].path
+                      }
+            this.addForm.projectPictureList.push(item)
+          }
+        }else{
+          arr[0].forEach(val => {
+            this.houseTypeForm[item].imgUrl.unshift(val.path)
+          })
+        }
+      },
+      // =======================================户型图图片上传改成oss方法结束======================================
+      // ===================================================富文本编辑器所有所有方法==================================
+      editorChange(data){
+        this.editDialogform.projectProfile = data
+      },
+      lookEditor(){
+        this.lookEditorBox=true
       }
     },
     filters: {
@@ -1476,5 +2139,5 @@
           return str
         }
       }
-    }
+    },
   };

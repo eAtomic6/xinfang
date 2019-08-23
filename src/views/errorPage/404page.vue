@@ -1,7 +1,7 @@
 <!-- 访问的页面不存在 -->
 <template>
   <div class="errorPage-404">
-      <i class="icon icon-yemianbucunzai"></i>
+      <img src="../../assets/images/errPages.png" alt="">
       <p>您访问的页面不存在</p>
   </div>
 </template>
@@ -22,9 +22,9 @@ export default {
     background-color: #f0f0f6;
     margin: 300px auto;
     text-align: center;
-    i{
-        font-size: 50px;
-        opacity: 0.5;
+    img{
+        width: 60px;
+        // opacity: 0.5;
     }
     p {
         margin-top: 20px;

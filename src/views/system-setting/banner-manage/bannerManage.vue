@@ -4,7 +4,7 @@
     <!-- 头部样式 -->
     <div class="header w-select">
       <el-form :inline="true" :model="keyWordData" class="demo-form-inline" min-width="1398px">
-        <el-form-item label="公司:">
+        <el-form-item label="公司:" v-if="companyId<0">
           <el-autocomplete
             class="inline-input"
             v-model="keyWordData.name"
@@ -30,7 +30,6 @@
         <el-form-item label="录入日期:">
           <el-date-picker
           v-model="createBannerTime"
-          clear-icon=""
           type="daterange"
           start-placeholder="开始日期"
           end-placeholder="结束日期">
@@ -50,7 +49,6 @@
       ref="multipleTable"
       :data="bannerDataList"
       tooltip-effect="dark"
-      style="width: 100%;"
       heigth='250'
       header-align=center
       border
@@ -77,6 +75,12 @@
         width='138'
         show-overflow-tooltip>
       </el-table-column>
+       <el-table-column
+        prop="location"
+        label="banner位置"
+        width='120'
+        show-overflow-tooltip>
+      </el-table-column>
       <el-table-column
         prop="type"
         label="banner类型"
@@ -92,7 +96,7 @@
       <el-table-column
         prop="is_offshelf"
         label="状态"
-        width='150'
+        width='50'
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
@@ -110,7 +114,7 @@
       <el-table-column
         prop="create_by"
         label="录入人"
-        width='180'
+        width='80'
         show-overflow-tooltip>
       </el-table-column>
       <el-table-column
@@ -161,10 +165,13 @@ export default {
       count: 0,
       companyInfoList: [],
       showPage: true, //控制当页数为0的时候显示隐藏
-      createBannerTime: []
+      createBannerTime: [],
+      companyId:""
     };
   },
   created() {
+     let myInfo = JSON.parse(localStorage.getItem('myInfo'))
+    this.companyId = myInfo.dep.companyId
     axios.get("/api/banner/list/can").then(res => {
       if(res.status === 200){
         this.getBannerInfo();
@@ -200,7 +207,7 @@ export default {
           : (this.isShelf = false);
         res.data.bannerList.filter(value => {
           return (
-            (value.type = value.type == 0 ? "推荐房源" : "H5广告") &&
+            (value.type = value.type == 0 ? "推荐房源" : (value.type == 1) ? "H5广告" : '视频链接') &&
             (value.is_offshelf = !value.is_offshelf ? "上架" : "下架")
             // &&
             // (value.onshelf_time =value.onshelf_time ? value.onshelf_time.substr(0, 10) : "") &&
@@ -312,8 +319,8 @@ export default {
       console.log(this.createBannerTime);
       console.log(this.keyWordData.companyId);
       if(this.createBannerTime.length !== 0){
-        this.keyWordData.endTime = this.timeFormat(this.createBannerTime[1])
-        this.keyWordData.startTime = this.timeFormat(this.createBannerTime[0]) 
+        this.keyWordData.endTime = this.timeFormats(this.createBannerTime[1])
+        this.keyWordData.startTime = this.timeFormats(this.createBannerTime[0]) 
       }else if(!this.createBannerTime){
         // delete this.keyWordData.endTime
         // delete this.keyWordData.startTime

@@ -310,13 +310,13 @@
         </div>
         <div class="ml15 mr15 mt20">
           <a href="javascript:" class="but-yellow mr10">
-            <i class="icon icon-addNew mr5"></i>新增跟进</a>
+            <i class="icon icon-zengjia mr5"></i>新增跟进</a>
           <a href="javascript:" class="but-yellow mr10">
-            <i class="icon icon-addNew mr5"></i>新增报备</a>
+            <i class="icon icon-zengjia mr5"></i>新增报备</a>
           <a href="javascript:" class="but-yellow mr10">
-            <i class="icon icon-addNew mr5"></i>新增带看</a>
+            <i class="icon icon-zengjia mr5"></i>新增带看</a>
           <a href="javascript:" class="but-yellow mr10">
-            <i class="icon icon-addNew mr5"></i>指定联动专员</a>
+            <i class="icon icon-zengjia mr5"></i>指定联动专员</a>
           <div class="clearfix"></div>
           <el-form :model="commission" :rules="rules" ref="commission" label-width="44px" class="mt10">
             <el-table :data="data" class="addwrap">
@@ -539,10 +539,8 @@ export default {
     },
     //分页
     handleSizeChange(val) {
-      // console.log(`每页 ${val} 条`);
     },
     handleCurrentChange(val) {
-      // console.log(`当前页: ${val}`);
     },
     //查询按钮
     onSearch() {}, //重置按钮

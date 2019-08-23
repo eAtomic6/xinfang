@@ -19,8 +19,16 @@ module.exports = {
         }
       },
       '/api': {
-        target: 'http://s224.360fdc.com:8095/api',
-        // target: 'http://s224.360fdc.com:8085/api',
+        // target: 'http://s224.360fdc.com:8095/api',
+        target:'http://newhousesys.t.jjw.com:8095/api',
+        // target: 'http://s224.360fdc.com:8095/api',
+        // target: 'htttp://192.168.1.38:18081',   // tx
+        // target: 'http://192.168.1.68:18081',       // wq
+        // target: 'htttp://192.168.1.93:18081',  // zdm
+        // target: 'htttp://192.168.1.159:18081',  // 
+        // target: 'http://192.168.1.117:8081',
+        // target: 'http://s224.360fdc.com:18081',
+        //  target: "http://192.168.1.224:18088",
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''
@@ -31,12 +39,12 @@ module.exports = {
         changeOrigin: true,
         pathRewrite: {
           '^/img': ''
-        }
+        },
       }
     },
 
     // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
+    host: '', // can be overwritten by process.env.HOST
     port: 8089, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,

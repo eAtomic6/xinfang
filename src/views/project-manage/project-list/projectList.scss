@@ -1,3 +1,64 @@
+// ==================新增强推项目排序样式开始======================
+.project-listSort{
+  /deep/ .el-select{
+    width: 70px;
+    display: inline-block !important;
+    .el-icon-arrow-up {
+      &::before {
+        content: "\E60C";
+        color: #575757;
+      }
+    }
+  }
+  .el-button{
+    width: 70px;
+    height: 30px;
+    padding: 0;
+    margin-bottom: 0 !important;
+    background-color: #719FD0;
+    color: #fff;
+  }
+}
+// ==================新增强推项目排序样式结束======================
+.removeFlase {
+  /deep/  .el-form-item__label {
+    &::before {
+      content: "" !important;
+    }
+  }
+}
+/deep/.project-deleteProject{
+  .el-dialog{
+    .el-dialog__title{
+      display: inline-block;
+      width: 410px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}
+// 项目状态表单样式修改
+/deep/ .project-projectStatus{
+  .el-select__tags{
+    display: inline-block;
+    width: 100px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    >span{
+      display: inline-block;
+      span{
+        font-weight: 700;
+      color: #333;
+      }
+    }
+  }
+}
+/deep/ .el-input--mini .el-input__inner{
+  height: 30px;
+  line-height: 30px;
+}
 .uploadDefaultText {
   position: absolute;
   left: 0;
@@ -5,40 +66,441 @@
   color: red;
   font-size: 12px;
 }
+.projectList_time {
+  position: absolute;
+  top: 0;
+  right: 5px;
+}
 
+// 两端对齐样式
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
+// =============================== 新项目列表样式开始 ======================================== 
+.eidtProject_lookEditor{
+    color: #666;
+    display: block;
+    height: 32px;
+    width: 86px;
+    background-color: #f3f3f3;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    text-align: center;
+    line-height: 32px;
+    margin: 10px 0 0 80px;
+  cursor: pointer;
+}
+/deep/ .info-content-kpTime{
+  label{
+    &:before {
+      content: '*';
+      color: #f56c6c;
+      margin-right: 4px;
+      display: inline-block;
+    }
+  }
+}
+// 搜索条件选中样式改变
+/deep/ .w-select .el-select .el-input .el-input__inner{
+  font-weight: 700;
+}
+.eidtProject_title {
+  margin: 16px 0 16px 6px;
+  color: #333;
+  font-size: 14px;
+  font-weight: bold;
+}
+/deep/ .project_number{
+  > label{
+    &:before {
+      content: '*';
+      color: #f56c6c;
+      margin-right: 4px;
+      display: inline-block;
+    }
+  }
+}
+.projectList_dis {
+  /deep/ .el-dialog {
+    height: 500px;
+
+    .distributeBtn {
+      display: inline-block;
+      width: 104px;
+      background-color: #6D9DCF;
+      color: #ffffff;
+      font-size: 14px;
+      text-align: center;
+      height: 34px;
+      line-height: 34px;
+      border-radius: 3px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+  }
+}
+.newProject_list {
+  min-width: 1200px;
+  background-color: #fff;
+  img {
+    width: 180px;
+    height: 130px;
+    margin-top: 10px;
+    }
+
+  >ul {
+    margin-top: 20px;
+    >li{
+      position: relative;
+      height: 166px;
+      padding: 10px 15px;
+      border-bottom: 1px solid #DDDDDD;
+    }
+  }
+
+  .newProject_two {
+    >ul {
+      margin-left: 20px;
+      line-height: 24px;
+      >li {
+        &:nth-of-type(1){
+          height: 40px;
+          line-height: 40px;
+        }
+        label {
+          color: #676767;
+          min-width: 88px;
+          display: inline-block;
+          text-align-last: justify;
+        }
+        &:nth-of-type(5){
+          span{
+            margin-right: 5px;
+          }
+          label{
+            display: inline-block;
+            text-align-last: inherit;
+            min-width: auto;
+          }
+        }
+
+        span {
+          color: #000;
+        }
+
+        &:nth-of-type(1) {
+          >h3 {
+            display: inline-block;
+            font-weight: 700;
+          }
+
+          span {
+            display: inline-block;
+            padding: 0px 10px;
+            border: 1px solid #FA9176;
+            color: #FA9176;
+            margin-left: 5px;
+            line-height: 22px;
+
+            &:nth-of-type(1) {
+              margin-left: 25px;
+              margin-bottom: 20px;
+            }
+          }
+        }
+        &:nth-of-type(3){
+          span{
+            &:nth-of-type(1){
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+        }
+        &:nth-of-type(2),
+        &:nth-of-type(3) {
+          span {
+            vertical-align: bottom;
+            display: inline-block;
+            width: 226px;
+          }
+        }
+
+        &:nth-of-type(4) {
+          margin: 3px 0;
+        }
+      }
+    }
+  }
+
+  .newProject_three {
+    position: absolute;
+    right: 10px;
+    bottom: 5px;
+    >ul {
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      height: 130px;
+      justify-content: space-between;
+      margin-top: 17px;
+      >li {
+        &:nth-of-type(1) {
+          margin-top: 20px;
+          color: #FF0000;
+          font-size: 24px;
+          font-weight: 700;
+        }
+        &:nth-of-type(2) {
+          line-height: 16px;
+          span {
+            margin-right: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            color:#3292F5;
+            &:hover {
+              color: #719fd0;
+            }
+            &:nth-of-type(7) {
+              margin-right: 2px;
+            }
+
+            i {
+              vertical-align: middle;
+              color:#9A9A9A;
+              font-size: 23px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+// =============================== 新项目列表样式结束 ======================================== 
 /deep/ .detail-dialog {
   .el-dialog {
     width: 860px !important;
   }
 
   .detail-left {
+    overflow-x: hidden;
     width: 350px;
   }
 
   .detail-right {
     width: 600px;
   }
+
+  .el-input {
+    width: 156px;
+  }
 }
-.projectlist-dialog-smtitle{
+
+.projectlist-dialog-smtitle {
   position: absolute;
   top: 10px;
   left: 98px;
 }
+
+/deep/ .base-info {
+  .el-form{
+    .el-form-item{
+      display: flex;
+      &:nth-of-type(1),&:nth-of-type(2),&:nth-of-type(3){
+        label{
+          min-width: 85px;
+        }
+        .el-radio{
+          margin-left: 0;
+        }
+      } 
+    }
+  }
+  .full .el-form-item__content {
+    width: 100%;
+  }
+
+  .form-row-info .info-content .el-form-item>label {
+    min-width: 88px;
+  }
+}
+//  ===================================== 编辑项目弹框样式==================================
+/deep/.edit_lookEditor{
+  .el-dialog{
+    margin-top:100px !important;
+    background-color: transparent;
+    width: 500px;
+    .el-dialog__header{
+      display: none;
+    }
+    .el-dialog__body{
+      padding: 0;
+      text-align: center;
+      position: relative;
+      .edit_lookContent {
+        .edit_lookFooter{
+          position: absolute;
+          right: 0;
+          top: 38%;
+          .el-button{
+            display: block;
+            margin: 0 0 50px 0;
+            width: 100px;
+            height: 50px;
+            font-size: 18px;
+          }
+        }
+        width: 700px;
+        position: absolute;
+        top: 92px;
+        left: -98px;
+        height: 572px;
+        .edit_lookTitle{
+          width: 305px;
+          height:  552px;
+          margin: 0 auto;
+          text-align: left;
+          word-wrap: break-word;
+          word-break: break-all;
+          overflow: hidden;
+          &::-webkit-scrollbar{
+            display: none;
+          }
+          &:hover{
+            overflow-y: scroll;
+          }
+          img{
+            width: 100%;
+            margin: 10px 0;
+          }
+        }
+      }
+    }
+  }
+}
+/deep/ .edit_projectForm{
+  .el-radio-group .el-radio{
+    &:nth-of-type(2){
+      margin-left: 8px !important;
+    }
+  }
+  .project_paperTime{
+    .el-input{
+      width: 212px;
+    }
+  }
+  .project_protectTime{
+    .el-input{
+      width: 212px !important;
+    }
+  }
+}
+/deep/ .project_protectTime {
+  .info-content {
+    .project_paperTime{
+      .el-input{
+        width: 165px;
+      }
+    }
+    .el-form-item {
+      &:nth-of-type(1) {
+        .el-col {
+          &:nth-of-type(1) {
+            .el-input--suffix {
+              width: 104%;
+            }
+          }
+
+          &:nth-of-type(2) {
+            .el-col-11 {
+              &:nth-of-type(1) {
+                label {
+                  padding-left: 5px;
+                }
+              }
+            }
+
+            .el-form-item {
+              margin-left: 5px;
+
+              label {
+                text-align-last: justify;
+                padding-right: 16px;
+                padding-left: 23px;
+                margin-right: -1px;
+              }
+
+              .el-textarea {
+                width: 108%;
+              }
+            }
+          }
+
+          &:nth-of-type(3) {
+            .el-col-11 {
+              &:nth-of-type(1) {
+                label {
+                  padding-left: 5px;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      &:nth-of-type(2),
+      &:nth-of-type(3) {
+        label {
+          padding-left: 5px;
+        }
+      }
+
+      &:nth-of-type(4) {
+        label {
+          padding-left: 5px;
+        }
+
+        .el-input-group--append {
+          width: 65%;
+        }
+      }
+    }
+  }
+
+  label {
+    &:nth-of-type(2) {
+      text-align-last: justify;
+      padding-right: 18px;
+      padding-left: 12px;
+    }
+  }
+}
+
 /deep/ .dialog-info {
   .el-dialog {
     width: 770px;
 
     .el-input-group {
-      width: 98%;
+      width: 165px;
     }
 
     .el-dialog__body {
       padding: 0;
-
+      .project_state{
+        .el-radio{
+          margin-left: 7px !important;
+          .el-radio__label{
+            padding-left: 7px;
+          }
+        }
+      }
       .el-tabs--border-card {
         border: none;
         box-shadow: none;
-
+        >.el-tabs__content{
+          padding: 15px 22px;
+        }
         >.el-tabs__header {
           // margin-top: 10px;
           background-color: #e8e8ee;
@@ -73,7 +535,6 @@
 
                 .el-radio-group {
                   width: 100%;
-
                   .el-radio {
                     min-width: 16%;
                   }
@@ -105,7 +566,7 @@
                   box-sizing: border-box;
 
                   .el-radio {
-                    margin-bottom: 20px;
+                    // margin-bottom: 20px;
                   }
                 }
 
@@ -133,6 +594,7 @@
               border: none;
               padding-top: 0;
             }
+
           }
         }
       }
@@ -152,6 +614,10 @@
     .el-form-item__label {
       margin-right: 10px;
     }
+  }
+
+  .el-select {
+    display: block;
   }
 
   .el-checkbox {
@@ -219,6 +685,7 @@
     border: 1px solid #d0d0d0;
   }
 
+
   .el-radio__label {
     color: #333;
   }
@@ -236,7 +703,14 @@
     background: #e6e6e9;
     color: #333344;
     font-weight: 700;
-
+    /deep/ .el-input--suffix{
+      .el-icon-arrow-up{
+        line-height: 0;
+      }
+    }
+   /deep/ .el-range-separator{
+      line-height: 20px;
+    }
     >li {
       &:first-of-type {
         padding-left: 10px;
@@ -267,6 +741,11 @@
         color: #f84949;
       }
     }
+
+    .red-bold {
+      color: #f84949;
+      font-weight: 600;
+    }
   }
 
   .el-button {
@@ -274,6 +753,20 @@
   }
 }
 
+// /deep/ .el-col-10{
+//   width: 45.667%;
+// }
+.info-content_top{
+  .el-form-item{
+    .el-radio-group{
+      line-height: 40px;
+      padding-top: 5px;
+    }
+    &:nth-of-type(1), &:nth-of-type(2){
+      margin-left: 0px;
+    }
+  }
+}
 .form-row-info {
   display: flex;
   align-items: center;
@@ -291,7 +784,6 @@
     border-left: 1px solid #e4e4e4;
     padding: 20px 20px 10px 5px;
     flex: 1;
-
     /deep/ .el-form-item {
       display: flex;
 
@@ -310,7 +802,7 @@
         display: block;
 
         >label {
-          min-width: 140px;
+          min-width: 100px;
           text-align: right;
         }
       }
@@ -360,13 +852,13 @@
         }
 
         &:last-child {
-          float: right;
+          // float: right;
         }
       }
 
       &:first-of-type {
         .el-col:nth-child(1) {
-          margin-right: 53px;
+          margin-right: 20px;
         }
       }
     }
@@ -388,6 +880,7 @@
 
   .el-form-item__content {
     position: relative;
+    width: 165px !important;
   }
 }
 
@@ -398,22 +891,28 @@
   background-color: #f3f3f3;
   border-radius: 4px;
   position: absolute;
-  right: -100px;
+  right: -90px;
   top: 50%;
   transform: translateY(-50%);
-  line-height: 1;
-  padding: 10px 20px;
+  line-height: 30px;
+  padding: 0px 10px;
+  border: 1px solid #FFD0D0D0;
 }
 
-.sell-form {
+/deep/ .sell-form {
   .el-form {
-    .el-form-item:nth-child(even) {
-      float: right;
+    .el-form-item:nth-child(odd) {
+      // float: right;
+      // margin-left: 60px;
 
       &:nth-child(odd) {
-        float: left;
+        // float: left;
       }
     }
+  }
+
+  .el-form--inline .el-form-item__content {
+    width: 240px;
   }
 }
 
@@ -497,7 +996,9 @@
   text-align: center;
 }
 
-.w-select {
+/deep/ .w-select {
+  padding: 16px 20px 0;
+
   .el-form-item {
     margin-right: 18px;
   }
@@ -625,7 +1126,12 @@
       display: inherit;
       align-items: center;
       padding-right: 20px;
-
+      /deep/ .el-icon-arrow-up{
+        line-height: 0;
+      }
+      /deep/ .el-range-separator {
+        line-height: 20px;
+      }
       >span {
         width: 80px;
       }
@@ -651,25 +1157,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 90px;
   }
 }
 
 .upload-image-list {
   display: flex;
   flex-wrap: wrap;
-  padding: 20px 0 10px 0;
+  padding: 5px 0 10px 0;
 
-  >li {
+  li {
     width: 100px;
     text-align: center;
     position: relative;
     margin-right: 20px;
 
-    >img {
+    img {
       width: 100%;
-      height: 70%;
+      height: 100%;
     }
 
     >span {
@@ -718,6 +1224,7 @@
 }
 
 /* 分配人员 */
+
 .input-group {
   display: flex;
   align-items: center;
@@ -735,7 +1242,6 @@
         display: inline-block;
         color: red;
       }
-
     }
   }
 
@@ -792,12 +1298,21 @@
 }
 
 /deep/.project_intro {
+  // .el-form-item__content{
+  //   width: auto !important;
+  // }
   .el-textarea__inner {
-    width: 473px;
+    width: 568px;
+    height: 130px;
   }
+  // .el-form-item__content{
+  //   width: 568px!important;
+  //   height: 100px!important;
+  // }
 }
 
 /* 图库 */
+
 .gallery {
   &-tab {
     display: flex;
@@ -935,1055 +1450,285 @@
   }
 }
 
-/*.radio-list {
-    display: flex;
-    > span {
-      min-width: 100px;
-    }
-  }
-  .person-visible{
-     /deep/.el-dialog{
-      min-width: 300px;
-    }
-  }
-  .input-group{
-    display: flex;
-    align-items: center;
-    position: relative;
-    padding-bottom: 10px;
-    >label{
-      min-width: 80px;
-      text-align: right;
-      padding-right: 10px;
-      &.input-group-target{
-        &:before{
-          content: '*';
-          display: inline-block;
-          color: red;
-        }
-      }
-    }
-    .staff-search-list{
-      position: absolute;
-      top: 30px;
-      left: 80px;
-      right: 0;
-      background: #ffffff;
-      z-index: 99;
-      height: 100px;
-      overflow-y: scroll;
-      >li{
-        padding: 10px 10px 0;
-        &:last-of-type{
-          padding-bottom: 10px;
-        }
-      }
-    }
-  }
-  .input-group-opera{
-    text-align: center;
-    >button{
-      color: #ffffff;
-      &:first-of-type{
-        background-color: #fd8f00;
-      }
-      &:nth-of-type(2){
-        background-color: #a0a0a0;
-      }
-    }
-  }
-
-  // === 公共的模态框确认取消按钮 ===
-  .projectlist-btn-okCancel {
-    display: flex;
-    justify-content: center;
-    padding-bottom: 26px;
-    .el-button {
-      width: 104px;
-      height: 40px;
-      border-radius: 5px;
-      font-size: 16px;
-      letter-spacing: 0px;
-      color: #fff;
-      &:first-child {
-        margin-right: 38px;
-      }
-    }
-    .el-button--primary {
-      background: #fd8f00;
-      border: #fd8f00;
-    }
-    .el-button--cancel {
-      background: #a0a0a0;
-    }
-  }
-
-  //  字体图标
-  .org-icon {
-    font-size: 15px;
-    margin-right: 3px;
-    line-height: 5px;
-  }
-
-  //  确认删除模态框
-  .projectlist-confirm-del {
-    .word-del-confirm {
-      display: flex;
-      justify-content: center;
-      margin-top: 30px;
-      font-size: 15px;
-      .el-icon-info {
-        color: #6d9dcf;
-        margin-right: 10px;
-      }
-    }
-  }
-
-  // 上传添加图片
-  .projectlist-addimg {
-    .el-upload-list {
-      .el-upload-list__item {
-        width: 98px;
-        height: 70px;
-      }
-    }
-    .el-upload--picture-card {
-      position: relative;
-      width: 98px;
-      height: 70px;
-      background-color: #e7e7e7;
-      .el-icon-plus {
-        position: absolute;
-        top: 16px;
-        left: 30px;
-        width: 34px;
-        height: 34px;
-        background-color: #e7e7e7;
-        border: solid 1px #a0a0a0;
-        border-radius: 50%;
-        &::before {
-          position: absolute;
-          top: 6px;
-          left: 7px;
-          font-size: 18px;
-        }
-      }
-    }
-  }
-
-  #projectList {
-    width: 100%;
-    // ======= 公共的类 ======
-    .el-form-item,
-    .el-form-item__label,
-    .el-input,
-    .el-input__inner {
-      !*height: 30px;*!
-      &:focus {
-        border-color: #fda100;
-      }
-    }
-    .el-form-item {
-      position: relative;
-      .el-icon-arrow-up:before {
-        content: "\E60C";
-        color: #575757;
-      }
-    }
-    // 验证表单 校验规则提示
-    .el-form-item__error {
-      line-height: 0;
-      display: none;
-    }
-    .el-form-item__label {
-      padding-right: 6px;
-    }
-    .a-coord {
-      // 拾取坐标
-      position: absolute;
-      top: 5px;
-      right: -82px;
-      display: block;
-      width: 77px;
-      height: 30px;
-      background-color: #f3f3f3;
-      border-radius: 3px;
-      border: solid 1px #d0d0d0;
-      text-align: center;
-      line-height: 30px;
-    }
-    .protection-day {
-      position: absolute;
-      top: 0;
-      right: -19px;
-    }
-    //   小标题头
-    .el-dialog__header {
-      position: relative;
-      height: 40px;
-      background: #f3f3f3;
-      .el-dialog__title {
-        position: absolute;
-        top: 11px;
-        left: 12px;
-        color: #333344;
-      }
-    }
-    .projectlist-dialog-smtitle {
-      position: absolute;
-      top: 16px;
-      left: 96px;
-      font-size: 14px;
-      color: #333344;
-    }
-    //  === 模态框 底部确定 取消 ===
-    .el-dialog {
-      .dialog-footer,
-      .projectlist-btn-okCancel {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 20 ox;
-        .el-button {
-          width: 104px;
-          height: 40px;
-          border-radius: 5px;
-          font-size: 16px;
-          letter-spacing: 0px;
-          color: #fff;
-          &:first-child {
-            margin-right: 38px;
-          }
-        }
-        .el-button--primary {
-          background: #fd8f00;
-          border: #fd8f00;
-        }
-        .el-button--cancel {
-          background: #a0a0a0;
-        }
-      }
-    }
-    // === 搜索表单 ===
-    .demo-form-inline {
-      background: #d7d7df;
-      height: 111px;
-      padding: 16px 0 0 27px;
-      .el-form-item {
-        margin-right: 35px;
-        margin-bottom: 15px;
-        .el-input,
-        .el-input__inner {
-          width: auto;
-          min-width: 132px;
-        }
-        &:nth-child(7) {
-          margin-right: 19px;
-        }
-        &:nth-child(8) {
-          margin-right: 16px;
-        }
-        &:nth-child(9) {
-          margin-right: 32px;
-        }
-        &:nth-child(10) {
-          margin-right: 24px;
-        }
-        .el-button {
-          height: 29px;
-          line-height: 0px;
-          margin-top: 7px;
-          .el-button--primary {
-            background: #72a0d1;
-            border-color: #72a0d1;
-          }
-        }
-      }
-    }
-    // 新增表单 模态框
-    .add-dialog {
-      background: transparent; // 去掉公共类 w-select背景色的影响
-      .el-dialog {
-        width: 769px;
-        .el-dialog__body {
-          padding: 0;
-          .add-supplytype,
-          .add-baseinfo,
-          .add-protectiontime,
-          .add-projectimg {
-            display: flex;
-            width: 100%;
-            .addleft,
-            .addright {
-              height: 100%;
-              width: 100%;
-              padding-left: 19px;
-              padding-top: 16px;
-              border-bottom: 1px solid #e4e4e4;
-              .el-form-item {
-                margin-bottom: 7px;
-                .el-input__suffix {
-                  height: 40px;
-                }
-                .el-input__icon {
-                  height: 0;
-                }
-              }
-            }
-            .addleft {
-              width: 95px;
-              border-right: 1px solid #e4e4e4;
-              padding-left: 13px;
-              padding-top: 27px;
-            }
-          }
-          .add-supplytype {
-            height: 96px;
-            .addleft {
-              .lefttitle {
-                &::after {
-                  content: "（必填）";
-                  color: #f84949;
-                }
-              }
-            }
-          }
-          .add-baseinfo {
-            height: 350px;
-            .addleft {
-              .lefttitle {
-                &::after {
-                  content: "（必填）";
-                  color: #f84949;
-                }
-              }
-            }
-            .addright {
-              .el-form-item {
-                // 项目名称
-                &:first-child {
-                  .el-input__inner {
-                    width: 234px;
-                  }
-                }
-                // 所属省 与 市
-                &:nth-child(2),
-                &:nth-child(3) {
-                  .el-select,
-                  .el-input__inner {
-                    width: 104.5px;
-                  }
-                }
-                &:nth-child(2) {
-                  margin-right: 6px;
-                }
-                // 所属区域
-                &:nth-child(4) {
-                  .el-input__inner,
-                  .el-select {
-                    width: 235px;
-                  }
-                }
-                &:nth-child(5) {
-                  .el-input__inner,
-                  .el-select {
-                    width: 214px;
-                  }
-                }
-                &:nth-child(6) {
-                  //项目价格
-                  position: relative;
-                  margin-right: 320px;
-                  .el-input__inner {
-                    width: 151px;
-                  }
-                  &::after {
-                    content: "\5143/\5E73\7C73"; //  元/平米
-                    position: absolute;
-                    top: 0px;
-                    right: -52px;
-                  }
-                }
-                &:nth-child(7) {
-                  //项目地址
-                  .el-input__inner {
-                    width: 552px;
-                  }
-                }
-                &:nth-child(8) {
-                  //地图坐标
-                  .el-input__inner {
-                    width: 467px;
-                  }
-                  .a-coord {
-                    top: 0;
-                  }
-                }
-              }
-            }
-          }
-          .add-protectiontime {
-            height: 150px;
-            .addleft {
-              .lefttitle {
-                display: block;
-                width: 56px;
-                &::after {
-                  content: "（必填）";
-                  color: #f84949;
-                }
-              }
-            }
-            .addright {
-              .el-form-item {
-                .el-input__inner {
-                  width: 166px;
-                }
-                .el-select {
-                  width: 166px;
-                }
-                &:nth-child(2),
-                &:nth-child(4),
-                &:nth-child(6) {
-                  margin-left: 30px;
-                }
-              }
-            }
-          }
-          .add-projectimg {
-            height: 145px;
-            .addright {
-              padding-bottom: 50px;
-            }
-          }
-        }
-      }
-    }
-    // 表格
-    .el-table {
-      font-size: 14px;
-      // === 表格展开行 ===
-      .demo-table-expand {
-        .expand-one,
-        .expand-two,
-        .expand-three,
-        .expand-four {
-          display: flex;
-        }
-        .expand-one {
-          .ep-oneleft {
-            .expand-img {
-              width: 98px;
-              height: 70px;
-              background: #d5d5d5;
-            }
-            flex: 1;
-            margin-right: 30px;
-          }
-          .ep-oneright {
-            flex: 3;
-            display: flex;
-            flex-direction: column;
-
-            height: 70px;
-            .spantop,
-            .spanbottom {
-              flex: 1;
-              line-height: 35px;
-            }
-          }
-        }
-        .expand-two {
-          .ep-twoleft,
-          .ep-twoleftc,
-          .ep-tworightc,
-          .ep-tworight {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 70px;
-            .spantop,
-            .spanbottom {
-              flex: 2;
-              line-height: 35px;
-            }
-          }
-
-          .ep-twoleft,
-          .ep-tworight {
-            .spantop,
-            .spanbottom {
-              width: 70px;
-              height: 26px;
-              line-height: 26px;
-              border: solid 1px #fa7a58;
-              text-align: center;
-              font-size: 14px;
-              color: #fa7a58;
-            }
-            .spantop {
-              margin-bottom: 18px;
-            }
-          }
-          .ep-tworight {
-            .spantop,
-            .spanbottom {
-              border: 1px solid #6baa53;
-              color: #6baa53;
-            }
-          }
-        }
-        .expand-three {
-          .ep-threeleft,
-          .ep-threeright {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-          }
-        }
-        .expand-four {
-          flex-direction: column;
-          .btn-edit,
-          .btn-stat {
-            flex: 1;
-            width: 80px;
-            height: 26px;
-            border-radius: 3px;
-            background: #719fd0;
-            color: #fff;
-            outline: none;
-            cursor: pointer;
-          }
-          .btn-edit {
-            margin-bottom: 12px;
-          }
-        }
-      }
-    }
-    //展开行弹出 项目编辑模态框
-    .edit-dialog {
-      max-height: 912px;
-      .el-form-item__label {
-        width: 20px;
-      }
-      .el-dialog {
-        width: 770px;
-        .el-dialog__header {
-          .el-dialog__headerbtn .el-dialog__close {
-            position: absolute;
-            right: -1px;
-            top: -5px;
-          }
-        }
-        .el-dialog__body {
-          padding: 0;
-          border: 0;
-          box-shadow: none;
-
-          .el-tabs--border-card {
-            border: 0;
-            box-shadow: none;
-            .el-tabs__item {
-              border: 0;
-              border-top: 2px solid transparent;
-              &:focus {
-                border-top: 2px solid #fda100;
-              }
-            }
-            .el-tabs__header {
-              border: 0;
-              background: #e8e8ee;
-            }
-          }
-          // === 基础信息表单 ===
-          .base-info {
-            !*height: 638px;*!
-            box-shadow: none;
-            .el-form-item__label {
-              width: 20px;
-            }
-            .el-form-item {
-              margin-bottom: 6px;
-              position: relative;
-              .el-input__icon {
-                line-height: 32px;
-              }
-            }
-            .el-form-item:nth-child(1),
-            .el-form-item:nth-child(2) {
-              .el-radio {
-                width: 60px;
-              }
-            }
-            .el-form-item:nth-child(15),
-            .el-form-item:nth-child(16),
-            .el-form-item:nth-child(18) {
-              .el-checkbox {
-                width: 105px;
-              }
-            }
-            .el-form-item:nth-child(19) {
-              .el-checkbox {
-                width: 106px;
-              }
-            }
-
-            .el-form-item:nth-child(3) {
-              // 项目编号
-              position: relative;
-              width: 390px;
-              margin-left: 10px;
-              &::before {
-                content: "*";
-                color: #f56c6c;
-                position: absolute;
-                top: 10px;
-                left: -10px;
-              }
-            }
-            .el-form-item:nth-child(5) {
-              // 所属省
-              margin-right: 2px;
-              .el-select {
-                width: 100px;
-              }
-            }
-            .el-form-item:nth-child(6) {
-              //  市
-              margin-right: 20px;
-              .el-select {
-                width: 100px;
-              }
-            }
-            .el-form-item:nth-child(7) {
-              //所属区域
-              margin-right: 6px;
-            }
-            .el-form-item:nth-child(7),
-            .el-form-item:nth-child(8) {
-              .el-select {
-                width: 121px;
-              }
-            }
-            .el-form-item:nth-child(9) {
-              // 项目价格
-              margin-right: 320px;
-              .el-input__inner {
-                width: 151px;
-              }
-              &::after {
-                content: "\5143/\5E73\7C73"; //  元/平米
-                position: absolute;
-                top: 10px;
-                right: -52px;
-              }
-            }
-            .el-form-item:nth-child(10) {
-              //项目地址
-              .el-input__inner {
-                width: 284px;
-              }
-            }
-            .el-form-item:nth-child(11) {
-              //地图坐标
-              margin-left: 34px;
-              .el-input__inner {
-                width: 156px;
-              }
-            }
-            .el-form-item:nth-child(12) {
-              // 项目负责人
-              .el-input__inner {
-                width: 228px;
-              }
-            }
-            .el-form-item:nth-child(13) {
-              //负责人电话
-              .el-input__inner {
-                width: 240px;
-              }
-            }
-            .el-form-item:nth-child(14) {
-              //建筑类型
-              position: relative;
-              width: 700px;
-              height: 50px;
-              .el-radio-group {
-                // 多选框组定位  不然无法成行显示
-                position: relative;
-                top: -16px;
-                left: 80px;
-                width: 636px;
-                .el-radio {
-                  margin-bottom: 10px;
-                  width: 105px;
-                  &:nth-child(5) {
-                    width: 70px;
-                  }
-                  &:nth-child(6) {
-                    margin-left: 0;
-                  }
-                }
-              }
-            }
-            .el-form-item:nth-child(15) {
-              // 楼盘性质
-              .el-radio {
-                width: 105px;
-              }
-            }
-            .el-form-item:nth-child(16) {
-              // 楼盘特色
-              position: relative;
-              width: 700px;
-              height: 80px;
-              .el-form-item__content {
-                position: absolute;
-                top: 0;
-                left: 81px;
-                .el-checkbox {
-                  width: 105px;
-                  &:nth-child(6) {
-                    margin-left: 0;
-                  }
-                  &:nth-child(5),
-                  &:nth-child(10) {
-                    width: 60px;
-                  }
-                }
-              }
-            }
-            //   是否上架
-            .el-form-item:nth-child(17) {
-              .el-radio {
-                width: 105px;
-              }
-            }
-            .el-form-item:nth-child(18) {
-              // 基础设施
-              position: relative;
-              width: 700px;
-              height: 100px;
-              margin-bottom: 26px;
-              .el-form-item__content {
-                position: absolute;
-                top: 0;
-                left: 81px;
-                .el-checkbox {
-                  width: 105px;
-                  &:nth-child(6),
-                  &:nth-child(11) {
-                    margin-left: 0;
-                  }
-                  &:nth-child(5),
-                  &:nth-child(10) {
-                    width: 60px;
-                  }
-                }
-              }
-            }
-          }
-          // === 销售信息表单 ===
-          .sell-form {
-            .el-form-item {
-              margin-right: 0px;
-              .el-form-item__label {
-                letter-spacing: 1px;
-              }
-              &:nth-child(1),
-              &:nth-child(3),
-              &:nth-child(5) {
-                width: 400px;
-              }
-              &:nth-child(1),
-              &:nth-child(2),
-              &:nth-child(6) {
-                .el-form-item__label {
-                  letter-spacing: 1.5px;
-                }
-              }
-              .el-input__inner {
-                width: 240px;
-              }
-              //   文本域
-              &:nth-child(7) {
-                height: 92px;
-                .el-textarea__inner {
-                  height: 92px;
-                  width: 644px;
-                }
-              }
-            }
-          }
-          // === 保护期表单 ===
-          .protection-time {
-            margin-bottom: 50px;
-            .el-form-item {
-              margin-right: 0px;
-              .el-input__inner {
-                width: 240px;
-              }
-              .el-input__icon {
-                line-height: 0px;
-              }
-              &:nth-child(1),
-              &:nth-child(3),
-              &:nth-child(5) {
-                width: 375px;
-              }
-              &:nth-child(3),
-              &:nth-child(5),
-              &:nth-child(6) {
-                position: relative;
-                .protection-day {
-                  position: absolute;
-                  top: 0;
-                  right: -19px;
-                }
-              }
-            }
-          }
-          // === 合同信息 ===
-          .contract-form {
-            .el-form-item {
-              &:nth-child(2),
-              &:nth-child(3) {
-                margin-bottom: 10px;
-              }
-              &:nth-child(6) {
-                height: 92px;
-                .el-textarea__inner {
-                  height: 70px;
-                  width: 613px;
-                }
-              }
-              .el-input__inner {
-                width: 613px;
-              }
-            }
-          }
-        }
-      }
-
-    }
-    // 展开弹出 项目统计模态框
-    .statistics-dialog {
-      .el-dialog {
-        width: 770px;
-        .el-dialog__body {
-          padding: 0;
-          .el-form {
-            height: 58px;
-            padding-top: 10px;
-            background: #e6e6e9;
-            .el-form-item {
-              margin-right: 26px;
-              .el-input__inner {
-                width: 140px;
-              }
-              .el-input__suffix {
-                height: 40px;
-              }
-              .searchStatistics {
-                display: flex;
-                justify-content: center;
-                width: 57px;
-                background-color: #fd8f00;
-                border-radius: 5px;
-                margin-top: 6px;
-              }
-            }
-          }
-          .statistics-explain {
-            width: 100%;
-            padding: 15px 0 15px 27px;
-            background-color: #fffae7;
-            span {
-              color: red;
-            }
-          }
-          .statistics-table {
-            padding: 25px;
-            .el-table {
-              border: 1px solid #ddd;
-            }
-          }
-          .statistics-closebtn {
-            display: flex;
-            justify-content: center;
-            padding-bottom: 20px;
-            .close-btn {
-              width: 104px;
-              height: 40px;
-              font-size: 15px;
-              background-color: #fd8f00;
-              color: #fff;
-              border-radius: 5px;
-              border: 0;
-              cursor: pointer;
-            }
-          }
-        }
-      }
-    }
-    //双击弹出 项目明细模态框
-    .detail-dialog .el-dialog {
-      position: relative;
-      min-width: 756px;
-      !*height: 772px;*!
-      .el-dialog__body {
-        padding: 0;
-        font-size: 14px;
-        .detail-box {
-          display: flex;
-          .detail-left {
-            !*min-width: 238px;*!
-            !*height: 732px;*!
-            padding: 10px;
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-            background-color: #e6e6e9;
-            .detailleft-title {
-              padding: 0 0 10px;
-              margin-bottom: 10px;
-              border-bottom: 1px solid #d8d8d8;
-              display: flex;
-              justify-content: space-between;
-              .wordinfo {
-                margin-top: 15px;
-              }
-              .btn-edit {
-                width: 84px;
-                height: 34px;
-                background-color: #6d9dcf;
-                border-radius: 3px;
-                opacity: 0.97;
-                border: 0;
-                color: #fff;
-                margin-top: 8px;
-                &::before {
-                  margin-right: 5px;
-                }
-                &:hover {
-                  cursor: pointer;
-                }
-              }
-            }
-            .detailleft-center,
-            .detailleft-bottom {
-              !*padding: 10px 9px 0 14px;*!
-              ul > li {
-                margin-bottom: 15px;
-                display: flex;
-                >span {
-                  color: #999;
-                  width: 80px;
-                }
-              }
-            }
-            .detailleft-center {
-              .wordproject {
-                display: block;
-                margin-top: 36px;
-              }
-              ul > li:nth-child(2) {
-                display: flex;
-                span {
-                  width: 78px;
-                }
-              }
-            }
-          }
-          .el-tabs--border-card {
-            !*width: 532px;*!
-            flex: 1;
-            .el-tabs__item {
-              border: 0;
-              border-top: 2px solid transparent;
-              &:focus {
-                border-top: 2px solid #fda100;
-              }
-            }
-            .el-tabs__header {
-              border: 0;
-              background: #e8e8ee;
-            }
-            // tab人员分配
-            .allot-person {
-              .btn-allot-person {
-                width: 94px;
-                height: 26px;
-                margin-bottom: 10px;
-                background-color: #fd8f00;
-                color: #fff;
-                border-radius: 3px;
-                border: 0;
-                &:focus {
-                  outline: none;
-                }
-                &:hover {
-                  cursor: pointer;
-                }
-              }
-              .el-icon-sort::before {
-                margin-right: 5px;
-              }
-              .el-table {
-                border: 1px solid #ddd;
-              }
-            }
-            // tab合同信息
-            .contract-info {
-              .contract-info-ul {
-                padding-right: 30px;
-                li {
-                  display: flex;
-                  margin: 15px 0;
-                  div {
-                    width: 120px;
-                  }
-                  span {
-                    width: 120px;
-                    display: flex;
-                    justify-content: flex-end;
-                    color: #999;
-                  }
-                }
-              }
-            }
-            // tab 图库
-            .img-store {
-              .el-tabs__header {
-                background: #fff;
-              }
-              .el-tabs__item {
-                border: 0;
-                border-top: 2px solid transparent;
-              }
-              .el-tabs__nav-wrap::after {
-                background: #fff;
-              }
-            }
-            // tab 操作日志
-            .operate-log {
-              .el-table {
-                border: 1px solid #ddd;
-              }
-            }
-          }
-        }
-      }
-    }
-  }*/
-
-  
 /* 户型图弹窗css start*/
+
 .houseType-dialog {
+  /deep/ .el-dialog {
+    position: relative;
+  }
+
   /deep/ .el-dialog__body {
-    background: pink;
+    max-height: 600px;
+    padding: 50px 15px 30px 15px !important;
+    overflow: auto;
+    background: #fff;
+
+    .title {
+      position: absolute;
+      padding-left: 15px;
+      top: 40px;
+      left: 0;
+      right: 0;
+      height: 50px;
+      line-height: 50px;
+      font-size: 14px;
+      z-index: 10;
+      background: #fff;
+
+      .add-btn {
+        display: inline-block;
+        margin: 7px 0;
+        padding: 0 10px;
+        height: 34px;
+        line-height: 34px;
+        border-radius: 4px;
+        background: #6d9dcf;
+        border: none;
+      }
+    }
+
+    .house-type-title {
+      padding-right: 9px;
+      height: 26px;
+      line-height: 26px;
+      text-align: right;
+      background-color: #eaeaea;
+      font-size: 14px;
+      color: #999;
+      cursor: pointer;
+
+      .icon-zhankai,
+      .icon-shouqi {
+        font-size: 12px;
+      }
+    }
+
+    .houseType-box {
+      position: relative;
+      margin-bottom: 10px;
+      padding: 10px 10px 10px 10px !important;
+      background: #f7f7f7;
+
+      /deep/ .select-item {
+        display: inline-block;
+        margin: 4px 0 8px 0;
+        float: left;
+        width: 50%;
+
+        .el-form-item__label {
+          font-weight: normal;
+        }
+
+        .el-input {
+          width: 240px;
+
+          &.averagePrice {
+            width: 200px;
+          }
+
+          &.area {
+            width: 220px;
+          }
+        }
+
+        .el-input__inner {
+          width: 100%;
+          padding-right: 10px;
+
+        }
+
+        .el-form-item__error {
+          display: inline-block;
+          padding-top: 0;
+        }
+      }
+
+      /deep/ .select-one {
+        .el-form-item__label {
+          font-weight: normal;
+        }
+      }
+
+      /deep/ .add-pic-btn {
+        margin-bottom: 10px !important;
+        padding-top: 0;
+        padding-bottom: 0;
+        height: 30px;
+        line-height: 28px;
+      }
+
+      .red {
+        color: #ff5151;
+      }
+
+      .house-pic-item {
+        position: relative;
+        display: inline-block;
+        margin-right: 13px;
+        width: 120px;
+        height: 90px;
+        background-color: #e3e3e3;
+        >div{
+          width: 100% !important;
+        }
+        .pic-box {
+          width: 100%;
+          text-align: center;
+
+          .icon-zengjia {
+            position: relative;
+            top: 12px;
+            font-size: 26px;
+            color: #b2b2b2;
+          }
+
+          .btn-tit {
+            height: 38px;
+            line-height: 38px;
+            font-size: 12px;
+            color: #999;
+          }
+        }
+
+        .mask {
+          display: none;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(34, 34, 34, 0.6);
+          .ico-box {
+            margin: 25px auto;
+            font-size: 0;
+            text-align: center;
+            .font-btn {
+                display: inline-block;
+                height: 40px;
+                width: 50%;
+                padding: 0 20px;
+                box-sizing: border-box;
+                &:last-child{
+                    position: relative;
+                    .line {
+                        content: '';
+                        display: inline-block;
+                        position: absolute;
+                        left: 0;
+                        top: 10px;
+                        width: 1px;
+                        height: 20px;
+                        background: #fff;
+                    }
+                }
+            }
+
+            .icon-fangda,
+            .icon-shanchu {
+              font-size: 22px;
+              color: #fff;
+            }
+          }
+
+
+        }
+        &:hover {
+          .mask {
+            display: block;
+          }
+        }
+
+      }
+
+      .btn-box {
+        padding-top: 14px;
+        text-align: center;
+        border-top: 1px solid #e6e6e6;
+
+        .el-button {
+          margin-bottom: 0;
+          width: 76px;
+          height: 32px;
+          line-height: 9px;
+          background-color: #a3a3a3;
+          border-radius: 3px;
+          opacity: 0.97;
+          border: none;
+          color: #fff;
+
+          &.el-button--primary {
+            background: #fd9208;
+          }
+        }
+        .el-form-item__content {
+          margin-left: 0 !important;
+        }
+      }
+    }
   }
 }
 
 /* 户型图弹窗css end*/
+
+
+// ======= 新增项目弹窗样式开始 =======
+/deep/ .add-project {
+   .el-form-item{
+    margin-right: 5px!important;
+  }
+  .el-form-item__label {
+    text-align: right;
+    margin-right: 5px;
+    // padding-right: 10px!important;
+  }
+
+  .project_address .el-form-item__content {
+    flex: 1;
+  }
+  .map-location .el-form-item__content {
+    width: 459px!important;
+  }
+
+  .el-form--inline .el-form-item {
+    margin-right: 0;
+  }
+
+  .form-row-info:nth-of-type(3) .el-form-item:first-of-type .el-col[data-v-05fc45b4]:nth-child(1) {
+    margin-right: 0px;
+  }
+
+  .el-form-item__content {
+    width: 100%;
+  }
+
+  .project_protectTime .info-content .el-form-item:nth-of-type(4) .el-input-group--append {
+    width: 100%;
+  }
+
+  .el-checkbox__input {
+    margin-left: 12px;
+  }
+
+  .timeOfEnd-tips {
+    margin-left: 50px;
+  }
+}
+// ===========================================富文本编辑器样式=======================================
+/deep/ .quill-editor{
+  width: 630px;
+  .ql-toolbar{
+   line-height: 20px;
+ }
+ .ql-container{
+   height: 200px;
+   .ql-editor{
+      img{
+        width: 100px;
+      }
+      em,
+      i {
+          font-style: italic;
+      }
+   }
+ }
+}

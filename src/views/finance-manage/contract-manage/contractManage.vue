@@ -216,8 +216,8 @@
                 </div>
                 <div class="form-row">
                     <div class="row rows3">
-                        <div class="tit">报备保护期:</div>
-                        {{settlementDetails.proTimeReport}}小时
+                        <div class="tit"> {{settlementDetails.reportingType == 1 ? '报备保护期' : '定点保护期'}}</div>
+                        {{settlementDetails.reportingType == 1 ? settlementDetails.proTimeReport + '小时' : settlementDetails.fixedPointProtectionPeriod}}
                     </div>
                     <div class="row rows3" style="width:26%">
                         <div class="tit">带看保护期:</div>
@@ -284,7 +284,7 @@
                         <el-form-item label="">
                             <span class="labels-name">认筹单据:</span>
                             <el-upload class="upload-card" action="/img/upload" :on-success="uploadPhotoSuccess" :on-preview="handlePictureCardPreview" :on-remove="removeAddPhone" :file-list="cert" :before-upload="imgPreview" list-type="picture-card">
-                                <i class="icon icon-addNew"></i>
+                                <i class="icon icon-zengjia"></i>
                             </el-upload>
                         </el-form-item>
                     </div>
@@ -322,7 +322,7 @@
                     <div class="inputrows upload">
                         <el-form-item label="合同附件:">
                             <el-upload class="upload-card" action="/img/upload" :on-success="uploadPhotoSuccess2" :on-preview="handlePictureCardPreview2" :on-remove="removeAddPhone2" :file-list="accountingCert" :before-upload="imgPreview2" list-type="picture-card">
-                                <i class="icon icon-addNew"></i>
+                                <i class="icon icon-zengjia"></i>
                             </el-upload>
                         </el-form-item>
                     </div>
@@ -407,7 +407,7 @@
                             <span class="labels-name" v-if="caoqianShow">草签单据:</span>
                             <span class="labels-name" v-if="wangqianShow">网签单据:</span>
                             <el-upload class="upload-card" action="/img/upload" :on-success="uploadPhotoSuccess" :on-preview="handlePictureCardPreview" :on-remove="removeAddPhone" :file-list="cert" :before-upload="imgPreview" list-type="picture-card">
-                                <i class="icon icon-addNew"></i>
+                                <i class="icon icon-zengjia"></i>
                             </el-upload>
                         </el-form-item>
                     </div>
@@ -433,7 +433,7 @@
                     <div class="inputrows upload">
                         <el-form-item label="合同附件:">
                             <el-upload class="upload-card" action="/img/upload" :on-success="uploadPhotoSuccess2" :on-preview="handlePictureCardPreview2" :on-remove="removeAddPhone2" :file-list="accountingCert" :before-upload="imgPreview2" list-type="picture-card">
-                                <i class="icon icon-addNew"></i>
+                                <i class="icon icon-zengjia"></i>
                             </el-upload>
                         </el-form-item>
                     </div>
@@ -473,7 +473,7 @@
 
             <div class="commission-rate">
                 <el-form :model="commission" :rules="commissionRules" ref="formCommission" label-width="44px" class="commission">
-                    <p class="add-title"><span class="point">*</span> 第 <span class="bold">{{commissionDetail.commissionTime}}</span> 次结算金额：<el-input class="account" v-model="currentMoney" @keyup.native="detectCurMoney"></el-input> 元</p>
+                    <p class="add-title"><span class="point">*</span> 第 <span class="bold">{{commissionDetail.commissionTime}}</span> 次结算金额：<el-input class="account" v-model="currentMoney"></el-input> 元</p>
                     <el-table :data="commissionData" class="addwrap" :row-class-name="tableRowClassName" @row-click="rowClick">
                         <el-table-column label="" width="">
                             <template slot-scope="scope">
@@ -658,7 +658,7 @@
                                     <div class="tit">网签时间:</div>
                                     <div v-if="settlementInfo.deal_time">{{settlementInfo.deal_time.split(" ")[0]}}</div>
                                 </div>
-                                <div class="row rows2">
+                                <div class="row rows3">
                                     <div class="tit">身份证号:</div>
                                     {{settlementInfo.cust_idcard}}
                                 </div>
@@ -706,7 +706,7 @@
                                     <div class="tit">房屋总价:</div>
                                     {{settlementInfo.house_price}}元
                                 </div>
-                                <div class="row rows1">
+                                <div class="row rows3">
                                     <div class="tit">成
                                         <em class="san-four"></em>交
                                         <em class="san-four"></em>人:</div>
@@ -748,7 +748,7 @@
                                         <div class="tit">应收佣金:</div>
                                         {{settlementInfo.expected_commision}}元
                                     </div>
-                                    <div class="row rows2">
+                                    <div class="row rows3">
                                         <div class="tit">实收佣金:</div>
                                         {{settlementInfo.actual_commision}}元
                                     </div>

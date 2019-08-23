@@ -8,6 +8,9 @@ const RULE = {
         projectState: [
           {required: true, message: "请选择一个项目状态", trigger: "change"}
         ],
+        projectAgent:[
+          {required: true, message: "请选择一个项目归属", trigger: "change"}
+        ],
         name: [
           {required: true, message: "请输入项目名称", trigger: "blur"}
         ],
@@ -29,7 +32,6 @@ const RULE = {
         ],
         buildingPrice: [
           {required: true, message: "请输入项目价格", trigger: "blur"},
-          // {type: "number", min: 1, max: 10, message: "价格必须为数字类型"},
         ],
         address: [
           {required: true, message: "请输入项目地址", trigger: "blur"}
@@ -55,6 +57,12 @@ const RULE = {
         proTimeAgentReport: [
           {required: true, message: "请输入报备保护期", trigger: "blur"},
         ],
+        fixedPointProtectionPeriod: [
+          {required: true, message: "请选择定点报备时间", trigger: "change"},
+        ],
+        reportingType: [
+          {required: true, message: "请选择报备类型", trigger: "change"},
+        ],
         reportRule: [
           {required: true, message: "请输入报备规则", trigger: "blur"}
         ],
@@ -79,8 +87,8 @@ const RULE = {
         infrastructure:[
           {required: true, message: "请输入基础设施", trigger: "change"},
         ],
-        name: [
-          { required: true, message: "请输入用户姓名", trigger: "blur" }
+        specificOpeningTime: [
+          { required: true, message: "请选择开盘时间", trigger: "change" }
         ],
         province: [
           { required: true, message: "请选择省份", trigger: "change" }
@@ -89,14 +97,7 @@ const RULE = {
         type: [
           { required: true, message: "请选择公司类型", trigger: "change" }
         ],
-        // mobile: [
-        //   { required: true, message: "请输入手机号", trigger: "blur" }
-        // ],
-        // roleBits: [
-        //   { required: true, message: "请选择权限", trigger: "change" }
-        // ],
         idcard: [{ required: true, message:"请输入身份证号码", trigger: "blur"}],
-        // mobile:[{required: true, message: "请输入正确的手机号", trigger: "blur"}],
         status: [
           { required: true, message: "请输入正确的手机号", trigger: "change" }
         ],
@@ -111,6 +112,14 @@ const RULE = {
           { required: true, message: "请输入正确的手机号", trigger: "blur" }
         ]
       },
+      rules2:{
+        fixedPointProtectionPeriod: [
+          {required: true, message: "请选择定点报备时间", trigger: "change"},
+        ],
+        proTimeAgentReport: [
+          {required: true, message: "请输入报备保护期", trigger: "blur"},
+        ],
+      }
     }
   },
   methods: {

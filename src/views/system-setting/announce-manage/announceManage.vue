@@ -357,8 +357,8 @@ export default {
     handleCurrentChange(){},
      // 点击根据关键词查询信息
     sureQueryInfo(){
-      this.keyWordData.startTime = this.dataTime ? this.timeFormat(this.dataTime[0]) : ""
-      this.keyWordData.endTime = this.dataTime ? this.timeFormat(this.dataTime[1]) : ""
+      this.keyWordData.startTime = this.dataTime ? this.timeFormats(this.dataTime[0]) : ""
+      this.keyWordData.endTime = this.dataTime ? this.timeFormats(this.dataTime[1]) : ""
       this.keyWordData.type = 2
       let params = this.keyWordData
       this.getAnnounceInfo()
@@ -414,7 +414,7 @@ export default {
 #announceCss {
   // 头部样式
   .header {
-    height: 60px;
+    height: auto;
     background-color: #d7d7df;
     // 头部表单样式
     .el-form {
