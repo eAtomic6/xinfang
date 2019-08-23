@@ -33,6 +33,7 @@ export default {
   },
   created(){
         getAnnounceInfo({params: {noticeId: this.$route.query.noticeId}}).then(res => {
+            console.log(res);
             this.announceData = res.data
             // this.announceTitle = res.data.title
             

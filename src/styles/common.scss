@@ -29,25 +29,19 @@ select {
     box-sizing: border-box;
 }
 
-html{
-    min-width: 1220px;
-    min-height: 100%;
-    // overflow-y: scroll;
-}
+html,
 body {
-    min-width: 1200px;
+    min-width: 1366px;
     min-height: 100%;
+}
+
+body {
     font-family: "Microsoft YaHei";
     font-size: 14px;
     color: #333;
     background: #f0f0f6;
 }
-.tableCommonColor{
-    color: #FF5438
-}
-.tableCloColor{
-    color: #333 !important;
-}
+
 h1,
 h2,
 h3,
@@ -56,6 +50,7 @@ h5,
 h6 {
     font-weight: normal;
 }
+
 ul,
 ol {
     list-style: none;
@@ -98,7 +93,6 @@ textarea {
 
 .container {
     padding: 0 20px;
-    // min-width:1100px;
 }
 
 .clearfix {
@@ -114,9 +108,7 @@ textarea {
     clear: both;
     overflow: hidden;
 }
-.el-table__body-wrapper{
-    overflow: auto !important;
-}
+
 .fl {
     float: left
 }
@@ -256,6 +248,7 @@ textarea {
 .el-menu--popup {
     min-width: 95px;
 }
+
 .el-menu--popup-bottom-start {
     margin-left: 7px;
 }
@@ -273,18 +266,7 @@ textarea {
     margin: 0 20px 20px;
     background: #fff;
 }
-.el-tooltip__popper{
-    // width: 160px;
-    border: none;
-    min-width: 60px;
-    max-width: 200px;
-    word-wrap: break-word;
-    word-break: break-all;
-}
-.el-tooltip__popper.is-light{
-    color: #aaa;
-    border: 1px solid #aaa;
-}
+
 //表单
 .w-select {
     background: #d7d7df;
@@ -315,6 +297,9 @@ textarea {
     }
     .el-select .el-input .el-input__inner {
         width: 100px;
+    }
+    .el-select.font-weight .el-input .el-input__inner {
+        font-weight: 600;
     }
     .el-input .el-input__inner {
         width: 157px;
@@ -896,13 +881,4 @@ button.btn-prev:hover {
   -o-text-overflow: ellipsis;
   -moz-text-overflow: ellipsis;
   text-overflow: ellipsis;
-}
-
-//禁止选择
-.un-select{
-    -moz-user-select: none;/*火狐*/
-    -webkit-user-select: none;/*webkit浏览器*/
-    -ms-user-select: none;/*IE10*/
-    -khtml-user-select: none;/*早期浏览器*/
-    user-select: none;
 }

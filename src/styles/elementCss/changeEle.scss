@@ -97,8 +97,11 @@ $white: #fff;
     color: #333;
   }
   .el-checkbox__input.is-indeterminate .el-checkbox__inner{
-    background-color: #fd8f00;
+    background-color: #fff;
     border: none;
+  }
+  .el-select-dropdown__item{
+    padding: 0 ;
   }
 
 .el-form-item__label {
@@ -154,8 +157,8 @@ $white: #fff;
   }
   .departAddressBox{
     position: absolute;
-    right: 7px;
-    top: 0px;
+    right: 0;
+    top: 24px;
   }
   .org_addUser,.org_editUser{
     // 新增弹框的样式修改
@@ -218,7 +221,7 @@ $white: #fff;
   .org_addDepart{
     .el-dialog {
       width: 810px;
-      min-height: 520px;
+      height: 500px;
       .el-cascader{
         width: 384px;
         .el-input{
@@ -227,23 +230,6 @@ $white: #fff;
       }
       .el-dialog__header {
         width: 810px;
-      }
-      .team_introduce{
-        .el-textarea__inner {
-          width: 635px;
-          height: 70px !important;
-        }
-      }
-      .depart_address{
-        .el-input__inner{
-          width: 635px;
-          padding-right: 40px;
-        }
-      }
-      .upDepart_name{
-        .el-input__inner{
-          width: 290px;
-        }
       }
       .el-form-item{
         margin: 0 10px 18px 0;
@@ -270,6 +256,30 @@ $white: #fff;
             }
           }
         }
+        &:nth-of-type(6){
+          .el-input__inner{
+            width: 385px;
+          }
+        }
+        &:nth-of-type(7){
+          .el-form-item__label{
+            width: 95px !important;
+          }
+          .el-input__inner{
+            width: 140px;
+          }
+        }
+        &:nth-of-type(8){
+          .el-input__inner{
+            width: 635px;
+          }
+        }
+        &:nth-of-type(9){
+          .el-textarea__inner {
+            width: 635px;
+            height: 70px !important;
+          }
+        }
         .el-form-item__content{
           .el-checkbox__inner {
             width: 16px;
@@ -290,16 +300,6 @@ $white: #fff;
             color: $white; 
             width: 104px;
             height: 40px;
-          }
-        }
-        .depart_phone{
-          margin-right: 0px !important;
-          display: inline-block;
-          .el-form-item__label{
-            width: 95px !important;
-          }
-          .el-input__inner{
-            width: 140px;
           }
         }
     }
@@ -393,7 +393,7 @@ $white: #fff;
    .org_addBanner{
     .el-dialog{
       width: 514px;
-      height: 548px;
+      height: 488px;
       .move_footer{
         margin-top: 84px;
       }
@@ -401,7 +401,7 @@ $white: #fff;
         height: 30px;
         margin-bottom: 15px;
         &:nth-of-type(7){
-          margin-top: 16px;
+          margin-top: 32px;
         }
         .message{
           position: absolute;
@@ -452,40 +452,17 @@ $white: #fff;
   //  组织架构左边树状样式
 }
 .org_leftTree{
-  .el-tree-node:focus>.el-tree-node__content{
-    background: #E6E6FD !important;
-  }
   .el-tree-node__expand-icon{
     color: #333;
     font-size: 14px;
   }
-  .el-tree-node__expand-icon.is-leaf{
-    color: transparent!important;
-  }
   .el-tree {
+    font-size: 18px;
+    color: black;
     line-height: 20px;
-    >.el-tree-node{
-      >.el-tree-node__content{
-        font-weight: bold;
-        color: #333;
-        font-size: 16px;
-      }
-      >.el-tree-node__children{
-        >.el-tree-node{
-          >.el-tree-node__content{
-            font-weight: bold;
-            color: #333;
-            font-size: 16px;
-          }
-        }
-      }
-    }
   }
   .el-tree-node__content{
-        padding: 18px 0;
-        &:hover{
-          background-color: #E6E6FD;
-        }
+        padding: 16px 0;
       }
     .el-tree-node__children{
       font-size: 17px;

@@ -14,9 +14,9 @@
           <el-dropdown trigger="click">
           <i class="icon icon-shezhi dic-icon"></i>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="addDictionaryClick(data)"><i class="icon icon-zengjia"></i> 新增字典</el-dropdown-item>
+              <el-dropdown-item @click.native="addDictionaryClick(data)"><i class="icon icon-addNew"></i> 新增字典</el-dropdown-item>
               <el-dropdown-item @click.native="editDictionaryClick(data)"><i class="icon icon-bianji"></i> 编辑字典</el-dropdown-item> 
-              <el-dropdown-item @click.native="addDictionaryClick(data)"><i class="icon icon-zengjia"></i> 新增字典项</el-dropdown-item>
+              <el-dropdown-item @click.native="addDictionaryClick(data)"><i class="icon icon-addNew"></i> 新增字典项</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
         </span>
@@ -35,7 +35,7 @@
           <el-dropdown trigger="click">
           <i class="icon icon-shezhi dic-icon"></i>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="addDictionaryClick(data)"><i class="icon icon-zengjia" style="margin-right: 3px"></i>新增字典项</el-dropdown-item>
+              <el-dropdown-item @click.native="addDictionaryClick(data)"><i class="icon icon-addNew" style="margin-right: 3px"></i>新增字典项</el-dropdown-item>
               <el-dropdown-item @click.native="editDictionaryClick(data)"><i class="icon icon-bianji" style="margin-right: 3px"></i>编辑字典项</el-dropdown-item>
             </el-dropdown-menu>
         </el-dropdown>
@@ -141,6 +141,7 @@ export default {
   methods: {
     getDictionaryInfo() {
       getParentDictionary({ params: { parentId: 0 } }).then(res => {
+        console.log(res);
         if (res.status === 200) {
           this.parentData = JSON.parse("[" + JSON.stringify(res.data) + "]");
           this.parentData[0].value = "中房网数据字典";
@@ -152,6 +153,7 @@ export default {
       axios.post("/api/dictionary/can").then(res => {
         if(res.status === 200){
           this.addDictionaryData = {};
+          console.log(data);
           this.addDictionaryBox = true;
           this.dictionaryType="type"
           this.addDictionaryData.parentId = data.id;
@@ -165,6 +167,7 @@ export default {
     },
     // 点击编辑字典项或者字典项
     editDictionaryClick(data) {
+      console.log(data);
       axios.put("/api/dictionary/can").then(res => {
         if(res.status === 200){
           this.dictionaryType=""
@@ -196,6 +199,7 @@ export default {
         return;
       }
       this.showChildId = data.id;
+      console.log(data);
       this.getChildInfo();
     },
     getChildInfo() {

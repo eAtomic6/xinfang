@@ -317,6 +317,7 @@ export default {
         endTime:this.dealTimeEnd
       }
       this.$ajax.get("/api/deal/unsubscribe/list", param).then(res => {
+          console.log(res.data);
           res = res.data;
           if (res.status === 200) {
             this.count = res.data.total;
@@ -336,6 +337,7 @@ export default {
      */
     getDetail: function(param) {
       this.$ajax.get("/api/deal/unsubscribe/info", param).then(res => {
+        console.log(res.data);
         res = res.data;
         if (res.status === 200) {
           this.rowExpand = res.data.info;
@@ -385,6 +387,7 @@ export default {
         state: type
       };
       this.$ajax.put("/api/deal/unsubscribe/check", param).then(res => {
+        console.log(res.data);
         res = res.data;
         if (res.status === 200) {
           if (type === 1) {
@@ -441,6 +444,7 @@ export default {
     },
     // 点击转移部门节点时
     clickNode(data, value) {
+      debugger
       this.departmentSelect.id = data.id;
       this.dropPrepareForm.department = data.name;
       this.getEmployeeListData.length = 0
@@ -550,6 +554,7 @@ export default {
       }
     },
     dropImg() {
+      console.log("开门");
     },
     // 分页器点击每页显示条数变化时
     handleSizeChange(val) {

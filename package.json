@@ -5,27 +5,19 @@
   "author": "chengwenxing <1694754862@qq.com>",
   "private": true,
   "scripts": {
-    "dev": "webpack-dev-server --disableHostCheck=true --inline --progress --config build/webpack.dev.conf.js",
+    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",
     "build": "node build/build.js"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "css-loader": "^0.28.11",
-    "echarts": "^4.2.0-rc.2",
-    "file-saver": "^2.0.0",
     "image-compressor.js": "^1.1.4",
-    "plupload": "^2.3.6",
-    "qrcode.vue": "^1.6.1",
-    "v-charts": "^1.19.0",
-    "v-viewer": "^1.2.1",
     "vue": "^2.5.2",
-    "vue-baidu-map": "^0.21.20",
     "vue-cropper": "^0.3.6",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1",
-    "xlsx": "^0.14.1"
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
@@ -57,7 +49,6 @@
     "postcss-url": "^7.2.1",
     "rimraf": "^2.6.0",
     "sass-loader": "^7.1.0",
-    "script-loader": "^0.7.2",
     "semver": "^5.3.0",
     "shelljs": "^0.7.6",
     "uglifyjs-webpack-plugin": "^1.1.1",

@@ -1,6 +1,6 @@
-<!-- 业务报表 -->
+<!-- 财务报表 -->
 <template>
-  <div>业务报表</div>
+  <div>财务报表</div>
 </template>
 
 <script>

@@ -275,6 +275,7 @@ export default {
         endTime:this.dealTimeEnd
       }
       this.$ajax.get('/api/deal/unsubscribe/list',param).then(res=>{
+        console.log(res.data)
         res = res.data
         if(res.status === 200){
           this.count = res.data.total
@@ -343,6 +344,7 @@ export default {
         state: type
       };
       this.$ajax.put("/api/deal/unsubscribe/check", param).then(res => {
+        console.log(res.data);
         res = res.data;
         if (res.status === 200) {
           if (type === 1) {
@@ -526,6 +528,7 @@ export default {
       }
     },
     dropImg() {
+      console.log("开门")
     },
     // 分页器点击每页显示条数变化时
     handleSizeChange(val) {

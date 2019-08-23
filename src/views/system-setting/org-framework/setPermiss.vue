@@ -13,16 +13,7 @@
                         {{key}}
                   </td>
                   <td>
-                     <el-checkbox v-for="(list,index) in val" v-model="list.ck"  :label="list" :key="index">
-                       <div v-if="list.message">
-                          <el-tooltip class="item" effect="dark" :content="list.message" placement="top-start">
-                          <span>{{list.note}}</span>
-                          </el-tooltip>
-                       </div>
-                       <div v-else>
-                          <span>{{list.note}}</span>
-                       </div>
-                       </el-checkbox>
+                     <el-checkbox v-for="(list,index) in val" v-model="list.ck"  :label="list" :key="index">{{list.note}}</el-checkbox>
                   </td>
               </tr>
           </table>
@@ -66,8 +57,7 @@ export default {
           }
         });
       }
-      let isCheckedStr = isCheckedArr.join(",");
-      !isCheckedStr ? isCheckedStr = "," : ""
+      const isCheckedStr = isCheckedArr.join(",");
       const params = { funcCk: isCheckedStr, roleId: this.roleId };
       console.log("哈哈哈哈或期货")
       console.log(params);

@@ -3,15 +3,10 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
-    watchSort:"",
     token: localStorage.getItem('token') || '',
     person: JSON.parse(localStorage.getItem('myInfo')) || {},
     announceNum: localStorage.getItem("announceNum"),
-    companyLogo:"",
-    code:"",
-    managementCustomerChoice:"",
-    customerDefaultData:"",
-    detailUpload:""
+    companyLogo:""
   },
   mutations: {
     set_token(state, token) {
@@ -35,24 +30,6 @@ const store = new Vuex.Store({
     },
     companyLogo(state, v) {
       state.person.companyLogo = v;
-    },
-    sortChange(state, v) {
-      state.watchSort = v;
-    },
-    code(state, v) {
-      state.code = v;
-    },
-    // 客户管理 --- 客户列表 ---选择客户
-    managementCustomerChoice(state, v) {
-      state.managementCustomerChoice = v;
-    },
-    // 客户管理 --- 客户列表 ---删选条件后，1为需要刷新列表2不需要刷新
-    customerDefaultData(state, v){
-      state.customerDefaultData = v;
-    },
-    // 客源列表--详情更新
-    setDetailUpload(state, v){
-      state.detailUpload = v;
     }
   }
 })

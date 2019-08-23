@@ -1,74 +1,38 @@
 <!--  -->
 <template>
-  <div id="homeCss">
-    <div class="header">
-      <!-- <router-link to="/"><img src="../../assets/logo.png" alt="吉家网" class="fl"></router-link> -->
-      <span class="fl backApp" v-if="code ==1" @click="goAPP">返回APP</span>
-      <router-link v-else to="/home">
-        <img :src="companyLogo" alt="吉家网" class="fl">
-      </router-link>
-      <div class="fl">
-        <el-menu
-          :default-active="this.$route.name"
-          class="el-menu-demo"
-          mode="horizontal"
-          background-color="#32323a"
-          text-color="#fff"
-          active-text-color="#fda100"
-          :router="isRouter"
-        >
+<div id="homeCss">
+  <div class="header">
+    <!-- <router-link to="/"><img src="../../assets/logo.png" alt="吉家网" class="fl"></router-link> -->
+     <router-link to="/home"><img :src="companyLogo" alt="吉家网" class="fl"></router-link>
+    <div class="fl">
+      <el-menu :default-active="this.$route.name" class="el-menu-demo" mode="horizontal" background-color="#32323a" text-color="#fff" active-text-color="#fda100" :router="isRouter">
           <el-submenu index="1">
             <template slot="title">项目管理</template>
-            <el-menu-item
-              v-for="(item, index) in projectBar"
-              :index="item.index"
-              :key="index"
-            >{{item.name}}</el-menu-item>
+            <el-menu-item v-for="(item, index) in projectBar" :index="item.index"
+            :key="index">{{item.name}}</el-menu-item>
           </el-submenu>
-          <el-submenu index="2">
-            <template slot="title">客源管理</template>
-             <el-menu-item index="customerList">客源列表</el-menu-item>
-             <el-menu-item index="uplusCustomer" v-if="depType != 1 && depType != 2">u+客源列表</el-menu-item>
-             <el-menu-item index="channelCustomer" v-if="depType != 1 && depType != 2 && depType != 3">渠道客源列表</el-menu-item>
-             <el-menu-item index="customerPublic">公客池列表</el-menu-item>
+          <el-submenu index="2" v-show="false">
+            <template slot="title">报表管理</template>
+            <el-menu-item v-for="(item, index) in statementBar" :index="item.index"
+            :key="index">{{item.name}}</el-menu-item>
           </el-submenu>
           <el-submenu index="3">
-            <template slot="title">报表管理</template>
-            <el-menu-item
-              v-for="(item, index) in statementBar"
-              :index="item.index"
-              :key="index"
-            >{{item.name}}</el-menu-item>
-          </el-submenu>
-          <el-submenu index="4">
             <template slot="title">财务管理</template>
-            <el-menu-item
-              v-for="(item, index) in financeBar"
-              :index="item.index"
-              :key="index"
-            >{{item.name}}</el-menu-item>
-          </el-submenu>
-          <el-submenu index="5">
+              <el-menu-item v-for="(item, index) in financeBar" :index="item.index"
+            :key="index">{{item.name}}</el-menu-item>
+            </el-submenu>
+          <el-submenu index="4">
             <template slot="title">系统设置</template>
             <el-menu-item index="orgFramework">组织架构</el-menu-item>
             <el-menu-item index="dataDictionary">数据字典</el-menu-item>
             <el-menu-item index="bannerManage">banner管理</el-menu-item>
             <el-menu-item index="announceManage">公告管理</el-menu-item>
-            <el-menu-item index="videoManage">H5视频管理</el-menu-item>
-            <el-menu-item index @click.native="editPhone">编辑头像</el-menu-item>
-            <el-menu-item index @click.native="dropCompany">退出企业</el-menu-item>
+            <el-menu-item index="" @click.native="editPhone">编辑头像</el-menu-item>
+            <el-menu-item index="" @click.native="dropCompany">退出企业</el-menu-item>
           </el-submenu>
-          <el-submenu index="6">
-            <template slot="title">运营管理</template>
-            <!-- <el-menu-item index="operationList">获客列表</el-menu-item> -->
-            <el-menu-item index="operationOnline">线上获客列表</el-menu-item>
-            <el-menu-item index="operationOffline">线下获客列表</el-menu-item>
-            <el-menu-item index="positionActivity">吉家活动-固定</el-menu-item>
-            <el-menu-item index="customActivity">吉家活动-自定义</el-menu-item>
-          </el-submenu>
-        </el-menu>
-      </div>
-      <ul class="fr nav-right">
+      </el-menu>
+    </div>
+  <ul class="fr nav-right">
         <li>
           <router-link to="/home/announceManage">
             <el-badge :value="this.$store.state.announceNum" :max="99" class="add-number">
@@ -76,120 +40,68 @@
             </el-badge>
           </router-link>
         </li>
-        <li
-          class="username"
-        >用户名: {{myMobile}}({{myName}})</li>
+        <li class="username">
+          用户名: {{this.$store.state.person.mobile}}({{this.$store.state.person.name}})
+        </li>
         <li>
           <router-link to="/login" @click.native="dropAdmin">注销</router-link>
         </li>
       </ul>
-    </div>
+  </div>
     <div class="clearfix"></div>
-    <el-breadcrumb separator=" > " class="cur-position">
+   <el-breadcrumb separator=" > " class="cur-position">
       <el-breadcrumb-item v-for="item in breadList" :key="item.index">{{ item }}</el-breadcrumb-item>
     </el-breadcrumb>
-    <!-- 退出企业弹框 -->
-    <div class="home_dropCompany">
-      <el-dialog title="退出企业" :visible.sync="dropCompanyBox">
-        <p>
-          &nbsp;手 机 号 码：
-          <span>{{dropCompanyPhone}}</span>
-        </p>短信验证码：
-        <el-input v-model="dropCompanyCode" placeholder="请输入内容" inline="true"></el-input>
+  <!-- 退出企业弹框 -->
+  <div class="home_dropCompany">
+        <el-dialog
+        title='退出企业'
+        :visible.sync="dropCompanyBox"
+        >
+      <p>&nbsp;手 机 号 码：<span>{{dropCompanyPhone}}</span></p>
+        短信验证码：<el-input v-model="dropCompanyCode" placeholder="请输入内容" inline="true"></el-input> 
         <div class="sendCode" v-show="sendCode" @click="getPhoneCd">发送验证码</div>
         <div class="sendCode" v-show="secondNote">还剩{{againTime}}秒</div>
-        <div class="dropCompany_master">
-          <label>客户交接人:</label>
-          <el-select v-model="masterId" placeholder="请选择交接人">
-            <el-option
-              v-for="item in allMasterData"
-              :label="item.name"
-              :value="item.id"
-              :key="item.id"
-              @click.native="masterChange(item)"
-            ></el-option>
-          </el-select>
-        </div>
+        <p class="dropContent">退出企业后您名下还有<span style="color: #f84949;">{{privateNum}}</span>个私客，将掉入公池</p>
+        <p class="dropContent">请确定是否退出企业</p>
         <div class="move_footer">
-          <el-button @click="isDropCompany" class="sureAdd">确 定</el-button>
-          <el-button @click="noIsDropCompany" class="noAdd">取 消</el-button>
-        </div>
-        <!-- 内层确认 -->
-        <el-dialog width="30%" title="确认离职" :visible.sync="sureDropCmpBox" append-to-body>
-          <div v-if="isShowLeaveBox">
-            <p class="dropContent">
-              退出企业后您名下还有
-              <span style="color: #f84949;">{{privateNum}}</span>个私客，将交给
-              <span style="color: #f84949;">{{ giveMasterName }}</span>
-            </p>
-            <p class="dropContent" style="margin-top:10px;text-align:center;">请确定是否退出企业</p>
-          </div>
-          <div v-else v-html="showLeaveMsg"></div>
-          <div class="move_footer">
-            <el-button @click="sureDropCompany" class="sureAdd" v-if="isShowLeaveBox">确 定</el-button>
+            <el-button  @click="sureDropCompany" class="sureAdd">确 定</el-button>
             <el-button @click="noDropCompany" class="noAdd">取 消</el-button>
-          </div>
+        </div>
         </el-dialog>
-      </el-dialog>
-    </div>
-    <!-- 编辑头像弹框 -->
-    <div class="home_editPhone">
-      <el-dialog title="修改头像" :visible.sync="editPhoneBox">
-        <!-- <img src="../../assets/logo.png" alt=""> -->
-        <div class="ceshi"></div>
-        <div class="message">
-          请选择一张新照片进行上传编辑（大小不超过
-          <span style="color: #f84949;">300kb</span>）
-        </div>
-        <div>
-          <div class="cut">
-            <span class="icon icon-fanhui editPhone-icon" @click="rotateRight"></span>
-            <vue-cropper
-              ref="cropper"
-              :img="option.img"
-              :output-size="option.size"
-              :output-type="option.outputType"
-              :info="true"
-              :can-move="option.canMove"
-              :can-move-box="option.canMoveBox"
-              :fixed-box="option.fixedBox"
-              :original="option.original"
-              :auto-crop="option.autoCrop"
-              :auto-crop-width="option.autoCropWidth"
-              :auto-crop-height="option.autoCropHeight"
-              :center-box="option.centerBox"
-              @real-time="realTime"
-              :high="option.high"
-            ></vue-cropper>
-          </div>
-          <div class="test-button">
-            <label class="btn-upload" for="uploads">
-              <span class="icon icon-shangchuan"></span> 本地上传
-            </label>
-            <input
-              type="file"
-              id="uploads"
-              style="position:absolute; clip:rect(0 0 0 0);"
-              accept="image/png, image/jpeg, image/gif, image/jpg"
-              @change="uploadImg($event, 1)"
-            >
-          </div>
-        </div>
-        <div class="bigPhoneBox" :style="note">
-          <span>140 * 140</span>
-        </div>
-        <div class="smallPhoneBox" :style="note">
-          <span>80 * 80</span>
-        </div>
-        <div class="move_footer">
-          <!-- <el-button @click="finish('blob')" class="noAdd">取消</el-button> -->
-          <el-button @click="finish('blob')" class="noAdd">预 览</el-button>
-          <el-button @click="sureEditHeadImg" class="sureAdd">确 定</el-button>
-        </div>
-      </el-dialog>
-    </div>
-    <router-view></router-view>
   </div>
+  <!-- 编辑头像弹框 -->
+  <div class="home_editPhone">
+       <el-dialog title="修改头像" :visible.sync="editPhoneBox">
+         <!-- <img src="../../assets/logo.png" alt=""> -->
+         <div class="ceshi"></div>
+         <div class="message">请选择一张新照片进行上传编辑（大小不超过<span style="color: #f84949;">300kb</span>）</div>
+         <div>
+            <div class="cut">
+              <span class="icon icon-fanhui editPhone-icon" @click="rotateRight"></span>
+              <vue-cropper ref="cropper" :img="option.img" :output-size="option.size" :output-type="option.outputType" :info="true"
+                :can-move="option.canMove" :can-move-box="option.canMoveBox" :fixed-box="option.fixedBox" :original="option.original"
+                :auto-crop="option.autoCrop" :auto-crop-width="option.autoCropWidth" :auto-crop-height="option.autoCropHeight" :center-box="option.centerBox"
+                @real-time="realTime" :high="option.high" ></vue-cropper>
+            </div>
+            <div class="test-button">                                          
+              <label class="btn-upload" for="uploads"><span class="icon icon-shangchuan"></span> 本地上传</label>
+              <input type="file" id="uploads" style="position:absolute; clip:rect(0 0 0 0);" accept="image/png, image/jpeg, image/gif, image/jpg"
+                @change="uploadImg($event, 1)">
+
+            </div>
+        </div>
+        <div class="bigPhoneBox" :style="note"><span>140 * 140</span></div>
+        <div class="smallPhoneBox" :style="note"><span>80 * 80</span></div>
+      <div class="move_footer">
+        <!-- <el-button @click="finish('blob')" class="noAdd">取消</el-button> -->
+        <el-button  @click="finish('blob')" class="noAdd" >预 览</el-button>
+        <el-button  @click="sureEditHeadImg" class="sureAdd" >确 定</el-button>
+      </div>
+      </el-dialog>
+  </div>
+  <router-view></router-view>
+</div>
 </template>
 <script>
 import VueCropper from "vue-cropper";
@@ -199,14 +111,12 @@ import {
   getPersonEmployee,
   getPhoneCode,
   dropCompany,
-  getPersonInfo,
-  getAllMaster
+  getPersonInfo
 } from "@/api";
 export default {
   components: { "vue-cropper": VueCropper },
   data() {
     return {
-      code: this.$store.state.code,
       crap: false,
       option: {
         img: this.$store.state.person.headImg,
@@ -242,9 +152,6 @@ export default {
       secondNote: false, // 倒计时框显示
       againTime: 60, // 倒计时时间
       Img: "",
-      myMobile:JSON.parse(localStorage.getItem("myInfo")).mobile,
-      myName:JSON.parse(localStorage.getItem("myInfo")).name,
-      depType:"",
       projectBar: [
         {
           index: "project",
@@ -261,81 +168,23 @@ export default {
       ],
       statementBar: [
         {
-          index: "projectManage",
-          name: "项目报表"
-        },
-        {
           index: "businessInfo",
-          name: "顾问报表"
+          name: "业务报表"
         },
         {
-          index: "protectInfo",
-          name: "维护报表"
-        },
-        {
-          index: "uPlusInfo",
-          name: "U+报表"
-        },
-        {
-          index: "departInfo",
-          name: "部门报表"
-        },
-        {
-          index: "settleManage",
-          name: "成交报表"
-        },
-        {
-          index: "saleManage",
-          name: "结算报表"
-        },
-        {
-          index: "uplusSettleManage",
-          name: "u+成交报表"
-        },
-        {
-          index: "uplusSaleManage",
-          name: "u+结算报表"
-        },
-        {
-          index: "platformManage",
-          name: "平台报表"
-        },
-        {
-          index: "companyState",
-          name: "公司统计报表"
+          index: "financeInfo",
+          name: "财务报表"
         }
       ],
       financeBar: [
         {
-          index: "newGetMoney",
-          name: "新房收款"
-        },
-        {
-          index: "newGetSettle",
-          name: "新房结算"
-        },
-        // {
-        //   index: "makeCustomer",
-        //   name: "成交客户"
-        // },
-        // {
-        //   index: "checkSale",
-        //   name: "收佣核对"
-        // },
-        // {
-        //   index: "checkCommission",
-        //   name: "结佣审核"
-        // },
+          index: "contractManage",
+          name: "合同管理"
+        }
       ],
       showSureClick: false,
       showLookClick: true,
-      headPhoto: 0,
-      allMasterData: [], // 获取
-      masterId: "", // 客户交接人的id
-      sureDropCmpBox: false, // 二层确认离职弹框显示
-      giveMasterName: "", // 客户交接人
-      isShowLeaveBox: true, // 员工离职时框中显示的内容控制
-      showLeaveMsg: "" // 员工不能离职时框中显示的内容
+      headPhoto: 0
     };
   },
   methods: {
@@ -364,7 +213,7 @@ export default {
       this.previews = data;
     },
     uploadImg(e, num) {
-      debugger
+      // debugger
       let form = new FormData();
       let file = e.target.files[0];
       if (file.size / 1024 > 300) {
@@ -404,26 +253,12 @@ export default {
     },
     // 点击退出企业
     dropCompany() {
-      this.dropCompanyCode = "";
-      this.masterId = "";
-      this.sendCode = true;
-      this.secondNote = false;
-      this.againTime = 60;
-      getAllMaster({ params: { id: this.$store.state.person.id } }).then(
-        res => {
-          this.allMasterData = res.data;
-        }
-      );
+      this.dropCompanyBox = true;
       getPersonEmployee({ params: { id: this.$store.state.person.id } })
         .then(res => {
           if (res.status === 200) {
-            this.isShowLeaveBox = true;
             this.privateNum = res.data;
-          } else if (res.status === 400) {
-            this.isShowLeaveBox = false;
-            this.showLeaveMsg = res.message;
           }
-          this.dropCompanyBox = true;
         })
         .catch(err => {
           this.privateNum = "??";
@@ -472,53 +307,21 @@ export default {
         }
       });
     },
-    // 客户交接人选择改变时
-    masterChange(val) {
-      this.giveMasterName = val.name;
-    },
-    // 点击确认退出企业外层框时
-    isDropCompany() {
-      if (!this.dropCompanyCode) {
-        this.alertMessage("info", "请输入验证码");
-        return;
-      } else if (!this.masterId) {
-        this.alertMessage("info", "请选择客户交接人");
-        return;
-      } else {
-        this.sureDropCmpBox = true;
-      }
-    },
     // 点击确定退出企业
     sureDropCompany() {
-      if (this.isShowLeaveBox) {
-        let params = {
-          captcha: this.dropCompanyCode,
-          masterId: this.masterId
-        };
-        dropCompany({ params: params }).then(res => {
-          if (res.status === 200) {
-            this.alertMessage("success", "已退出企业");
-            this.sureDropCmpBox = false;
-            this.dropCompanyBox = false;
-            localStorage.setItem("checkIsLogin", false);
-            this.$store.commit("del_token");
-            this.$router.push({ path: "/login" });
-          } else {
-            this.alertMessage("warning", res.message);
-            return;
-          }
-        });
-      } else {
-        this.sureDropCmpBox = false;
-      }
-    },
-    noIsDropCompany() {
+      dropCompany({ params: { captcha: this.dropCompanyCode } }).then(res => {
+        if (res.status === 200) {
+          this.alertMessage("success", "已退出企业");
+          this.dropCompanyBox = false;
+        } else {
+          this.alertMessage("warning", res.message);
+        }
+      });
       this.dropCompanyBox = false;
     },
     // 点击取消退出企业
     noDropCompany() {
-      this.dropCompanyBox = this.isShowLeaveBox;
-      this.sureDropCmpBox = false;
+      this.dropCompanyBox = false;
     },
     // 点击注销
     dropAdmin() {
@@ -529,10 +332,10 @@ export default {
     getPhoneCd() {
       getPhoneCode({ params: { mobile: this.dropCompanyPhone, type: 2 } }).then(
         res => {
-          if (res.status === 200) {
-            this.sendCode = false;
-            this.secondNote = true;
-            let timerId = setInterval(() => {
+            if (res.status === 200) {
+              this.sendCode = false;
+              this.secondNote = true;
+              let timerId = setInterval(() => {
               this.againTime--;
               if (this.againTime == 0) {
                 clearInterval(timerId);
@@ -541,38 +344,17 @@ export default {
                 this.secondNote = false;
               }
             }, 1000);
-          } else {
-            this.alertMessage("warning", res.message);
-            return;
+          }else{
+            this.alertMessage("warning", res.message)
+            return
           }
           console.log(res);
         }
       );
-    },
-    goAPP() {
-      let hostUrl = window.location.host;
-      let url = "";
-      switch (hostUrl) {
-        case "newhousesys.t.jjw.com:8095": //预2
-          url = "http://newhousesys.t.jjw.com:8093";
-          break;
-        case "192.168.1.224:8095": //测2
-          url = "http://192.168.1.224:8093";
-          break;
-        case "s224.360fdc.com:8095": //测2
-          url = "http://s224.360fdc.com:8093";
-          break;
-        case "newhousesys.jjw.com":
-          url = "https://newhousesys.jjw.com:8083";
-          break;
-      }
-      window.location.href = url + "/#/self";
     }
   },
   created() {
-    let info = JSON.parse(localStorage.getItem('myInfo')).dep
     this.breadList = this.$route.meta.roles;
-    this.depType = info.type
   },
   beforeRouteUpdate(to, from, next) {
     this.breadList = to.meta.roles;
@@ -588,57 +370,22 @@ export default {
 </script>
 <style lang='scss'>
 #homeCss {
-  .el-menu-demo {
-    background-color: #333348 !important;
-  }
-  .el-submenu__title {
-    background-color: #333348 !important;
-  }
   .header {
     width: 100%;
     height: 58px;
-    background: #333348;
+    background: #32323a;
     line-height: 58px;
-    position: relative;
-    > .backApp {
-      color: #fff;
-      position: fixed;
-      top: 2%;
-      left: 3%;
-      z-index: 2;
-      background-color: #000;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      text-align: center;
-    }
     img {
-      width: 200px;
+      margin-left: 45px;
+      width: 126px;
       height: 58px;
     }
-    @media only screen and (min-width: 1380px) {
-      img {
-        margin-left: 45px;
-      }
+    .el-menu {
+      padding-left: 125px;
     }
-    @media only screen and (max-width: 1200px) {
-      img {
-        margin-left: 8px;
-      }
-    }
-    @media only screen and (min-width: 1380px) {
-      .el-menu {
-        padding-left: 125px;
-      }
-    }
-    @media only screen and (max-width: 1200px) {
-      .el-menu {
-        padding-left: 10px;
-      }
-    }
-    /deep/ .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
-      background: rgb(40, 40, 46) !important;
-      color: white !important;
+    /deep/ .el-menu--horizontal > .el-submenu.is-active .el-submenu__title{
+      background: rgb(40, 40, 46)!important;
+      color: white!important;
     }
     .breadStyle {
       padding: 0 20px;
@@ -706,19 +453,6 @@ export default {
     }
   }
   .home_dropCompany {
-    .dropCompany_master {
-      margin-top: 10px;
-      label {
-        &::before {
-          content: "*";
-          color: #f56c6c;
-          margin-right: 4px;
-        }
-      }
-      .el-input__icon {
-        line-height: 0;
-      }
-    }
     .el-dialog {
       width: 514px;
       height: 378px;
